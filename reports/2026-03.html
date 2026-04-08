@@ -11,35 +11,33 @@
 
   /* ── Tokens ── */
   :root {
-    --ink:       #1a1a18;
-    --ink-mid:   #5f5e5a;
-    --ink-light: #888780;
-    --ink-faint: #b4b2a9;
-    --bg:        #f7f6f2;
-    --bg-card:   #ffffff;
-    --bg-muted:  #f2f1ed;
-    --border:    #e4e3db;
-    --border-light: #eeedea;
-    --accent:    #0c447c;
-    --accent-bg: #f0f5fb;
-    --pos:       #1a6b52;
-    --pos-bg:    #f0f8f5;
-    --neg:       #7a2020;
-    --neg-bg:    #fdf2f2;
-    --warn:      #6b4200;
-    --warn-bg:   #fdf7ee;
+    --ink:          #1a1a18;
+    --ink-mid:      #5f5e5a;
+    --ink-light:    #888780;
+    --ink-faint:    #b4b2a9;
+    --bg:           #f6f5f1;
+    --bg-card:      #ffffff;
+    --bg-muted:     #f2f1ed;
+    --border:       #e2e0d8;
+    --border-light: #eceae4;
+    --accent:       #1a3d6b;
+    --accent-mid:   #2d5a8e;
+    --accent-bg:    #f0f4f9;
+    --pos:          #1a5c45;
+    --neg:          #5c1f1f;
+    --warn:         #5c3d00;
   }
 
   /* ── Base ── */
-  body { font-family: 'Georgia', 'Times New Roman', serif; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.65; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.6; }
   .page { max-width: 1100px; margin: 0 auto; padding: 48px 36px; }
 
   /* ── Header ── */
   .header { margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
-  .header-left h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; font-family: 'Georgia', serif; }
+  .header-left h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
   .header-left p { font-size: 13px; color: var(--ink-light); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
   .header-right { font-size: 12px; color: var(--ink-faint); text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-  .highlight-badge { display: inline-block; background: var(--accent); color: #fff; font-size: 11px; font-family: -apple-system, sans-serif; font-weight: 500; padding: 3px 10px; border-radius: 4px; margin-left: 10px; vertical-align: middle; letter-spacing: 0.01em; }
+  .highlight-badge { display: inline-block; background: var(--accent); color: #fff; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 4px; margin-left: 10px; vertical-align: middle; }
 
   /* ── Section ── */
   .section { margin-bottom: 48px; }
@@ -49,15 +47,16 @@
   .metrics4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-bottom: 16px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
   .metrics3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-bottom: 16px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
   .metric { background: var(--bg-card); padding: 18px 20px; }
-  .metric.highlight { background: var(--accent-bg); }
+  .metric.highlight { background: var(--accent-bg); border-left: 2px solid var(--accent-mid); }
   .metric-label { font-size: 11px; color: var(--ink-light); margin-bottom: 6px; font-weight: 500; font-family: -apple-system, sans-serif; text-transform: uppercase; letter-spacing: 0.04em; }
-  .metric-value { font-size: 26px; font-weight: 700; line-height: 1.05; font-family: 'Georgia', serif; letter-spacing: -0.02em; }
+  .metric-value { font-size: 24px; font-weight: 700; line-height: 1.05; }
   .metric-usd { font-size: 12px; font-weight: 600; margin-top: 3px; font-family: -apple-system, sans-serif; }
   .metric-sub { font-size: 11px; color: var(--ink-light); margin-top: 4px; line-height: 1.4; font-family: -apple-system, sans-serif; }
 
   /* ── Semantic colors — text only ── */
   .green { color: var(--pos); } .red { color: var(--neg); }
   .blue  { color: var(--accent); } .amber { color: var(--warn); } .gray { color: var(--ink-mid); }
+  .green-val { color: var(--pos); } .red-val { color: var(--neg); } .blue-val { color: var(--accent-mid); }
 
   /* ── Cards & charts ── */
   .charts2   { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
@@ -91,7 +90,7 @@
   /* ── Month comparison cards ── */
   .month-compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
   .month-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
-  .month-card.highlight { border: 1.5px solid var(--accent); background: var(--accent-bg); }
+  .month-card.highlight { border: 1.5px solid var(--accent-mid); background: var(--accent-bg); }
   .month-card-title { font-size: 11px; font-weight: 700; color: var(--ink-mid); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; font-family: -apple-system, sans-serif; text-transform: uppercase; letter-spacing: 0.06em; }
   .month-card-title .badge { background: var(--accent); color: #fff; font-size: 8px; padding: 2px 6px; border-radius: 3px; font-weight: 600; letter-spacing: 0.06em; }
   .month-stat { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 0.5px solid var(--border-light); font-family: -apple-system, sans-serif; }
@@ -162,42 +161,12 @@
     </div>
     <div class="ai-body" id="ai-body">
       
-    <p style="font-size:13px;color:#1a1a18;font-weight:500;margin:0 0 12px;line-height:1.6">Disputes opened surged to 207 in March, a 156% increase from February.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-      <div style="flex:1;min-width:160px">
-        <div
-          onclick="const d=document.getElementById('ai-detail-0');const all=document.querySelectorAll('.ai-detail');all.forEach(el=>{if(el.id!=='ai-detail-0')el.style.display='none'});d.style.display=d.style.display==='none'?'block':'none'"
-          style="display:inline-flex;align-items:center;gap:6px;background:#fdf3f3;color:#7a2020;border:1.5px solid #ddc2c2;border-radius:20px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;user-select:none;width:100%;box-sizing:border-box;justify-content:space-between">
-          <span>207 disputes opened, up from 81 in Feb</span>
-          <span style="font-size:10px;opacity:0.6">▾</span>
-        </div>
-        <div id="ai-detail-0" class="ai-detail" style="display:none;margin-top:8px;background:#f5e0e0;border-left:3px solid #ddc2c2;border-radius:0 8px 8px 0;padding:12px 14px;font-size:12px;color:#7a2020;line-height:1.7">
-          
-        </div>
-      </div>
-      <div style="flex:1;min-width:160px">
-        <div
-          onclick="const d=document.getElementById('ai-detail-1');const all=document.querySelectorAll('.ai-detail');all.forEach(el=>{if(el.id!=='ai-detail-1')el.style.display='none'});d.style.display=d.style.display==='none'?'block':'none'"
-          style="display:inline-flex;align-items:center;gap:6px;background:#f1efe8;color:#5f5e5a;border:1.5px solid #d3d1c7;border-radius:20px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;user-select:none;width:100%;box-sizing:border-box;justify-content:space-between">
-          <span>88.9% in progress – outcome pending</span>
-          <span style="font-size:10px;opacity:0.6">▾</span>
-        </div>
-        <div id="ai-detail-1" class="ai-detail" style="display:none;margin-top:8px;background:#e8e6de;border-left:3px solid #d3d1c7;border-radius:0 8px 8px 0;padding:12px 14px;font-size:12px;color:#5f5e5a;line-height:1.7">
-          
-        </div>
-      </div>
-      <div style="flex:1;min-width:160px">
-        <div
-          onclick="const d=document.getElementById('ai-detail-2');const all=document.querySelectorAll('.ai-detail');all.forEach(el=>{if(el.id!=='ai-detail-2')el.style.display='none'});d.style.display=d.style.display==='none'?'block':'none'"
-          style="display:inline-flex;align-items:center;gap:6px;background:#fdf8f0;color:#6b4200;border:1.5px solid #ddd0b0;border-radius:20px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;user-select:none;width:100%;box-sizing:border-box;justify-content:space-between">
-          <span>$50,951 in credits to be recovered</span>
-          <span style="font-size:10px;opacity:0.6">▾</span>
-        </div>
-        <div id="ai-detail-2" class="ai-detail" style="display:none;margin-top:8px;background:#f5ecd8;border-left:3px solid #ddd0b0;border-radius:0 8px 8px 0;padding:12px 14px;font-size:12px;color:#6b4200;line-height:1.7">
-          
-        </div>
-      </div></div>
-    <div style="font-size:12px;color:#633806;background:#fef6e4;border-left:3px solid #EF9F27;padding:10px 14px;border-radius:0 6px 6px 0;line-height:1.6;margin-top:4px">⚑ <strong>Watch:</strong> Monitor the 'in progress' disputes closely over the next two months to understand actual win/loss rates.</div>
+    <p style="font-size:13px;color:#1a1a18;line-height:1.75;margin:0 0 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">Disputes opened spiked to 207 in March, a 156% increase from February.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"><span style="display:inline-flex;align-items:center;background:#faf5ec;color:#5c3d00;border:1px solid #d9c99a;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:500;line-height:1.3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">207 disputes opened</span><span style="display:inline-flex;align-items:center;background:#f2f1ed;color:#4a4a47;border:1px solid #d8d6cf;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:500;line-height:1.3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">0% won — all 184 disputes in progress</span><span style="display:inline-flex;align-items:center;background:#eef5f2;color:#1a5c45;border:1px solid #b8d8cc;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:500;line-height:1.3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">0.13 bps — well below review threshold</span></div>
+    
+    <div style="font-size:12px;color:#5c3d00;background:#faf5ec;border-left:2px solid #c4a35a;padding:10px 14px;border-radius:0 6px 6px 0;line-height:1.6;font-family:-apple-system,sans-serif">
+      <strong>Watch:</strong> Monitor progress of 184 in-progress disputes to understand potential loss exposure.
+    </div>
   
     </div>
   </div>
@@ -503,7 +472,7 @@
           </span>
         </div>
         <table><thead><tr><th>MCC</th><th>Category</th><th>Cases</th><th>%</th></tr></thead>
-        <tbody><tr><td>5399</td><td class="left">General Merchandise</td><td>139</td><td style="font-weight:700">26.8%</td></tr><tr><td>4121</td><td class="left">Taxicabs & Rideshare</td><td>96</td><td style="font-weight:700">18.5%</td></tr><tr><td>5812</td><td class="left">Restaurants</td><td>56</td><td style="font-weight:700">10.8%</td></tr><tr><td>7011</td><td class="left">Hotels & Lodging</td><td>19</td><td style="font-weight:700">3.7%</td></tr><tr><td>5814</td><td class="left">Fast Food</td><td>16</td><td style="font-weight:700">3.1%</td></tr><tr><td>7372</td><td class="left">Software & SaaS</td><td>13</td><td style="font-weight:700">2.5%</td></tr><tr><td>5734</td><td class="left">Computer Software Stores</td><td>12</td><td style="font-weight:700">2.3%</td></tr><tr><td>4722</td><td class="left">Travel Agencies</td><td>11</td><td style="font-weight:700">2.1%</td></tr><tr><td>4511</td><td class="left">Airlines</td><td>11</td><td style="font-weight:700">2.1%</td></tr><tr><td>5818</td><td class="left">Digital Goods - Multi-Category</td><td>11</td><td style="font-weight:700">2.1%</td></tr><tr><td>4816</td><td class="left">Computer Network/Info Services</td><td>10</td><td style="font-weight:700">1.9%</td></tr><tr><td>7399</td><td class="left">Business Services</td><td>9</td><td style="font-weight:700">1.7%</td></tr><tr class="total-row"><td colspan="2">Total</td><td>518</td><td>100%</td></tr></tbody></table>
+        <tbody><tr><td>5399</td><td class="left">General Merchandise</td><td>139</td><td style="font-weight:700">26.8%</td></tr><tr><td>4121</td><td class="left">Taxicabs & Rideshare</td><td>96</td><td style="font-weight:700">18.5%</td></tr><tr><td>5812</td><td class="left">Restaurants</td><td>56</td><td style="font-weight:700">10.8%</td></tr><tr><td>7011</td><td class="left">Hotels & Lodging</td><td>19</td><td style="font-weight:700">3.7%</td></tr><tr><td>5814</td><td class="left">Fast Food</td><td>16</td><td style="font-weight:700">3.1%</td></tr><tr><td>7372</td><td class="left">Software & SaaS</td><td>13</td><td style="font-weight:700">2.5%</td></tr><tr><td>5734</td><td class="left">Computer Software Stores</td><td>12</td><td style="font-weight:700">2.3%</td></tr><tr><td>4722</td><td class="left">Travel Agencies</td><td>11</td><td style="font-weight:700">2.1%</td></tr><tr><td>4511</td><td class="left">Airlines</td><td>11</td><td style="font-weight:700">2.1%</td></tr><tr><td>5818</td><td class="left">Digital Goods - Multi-Category</td><td>11</td><td style="font-weight:700">2.1%</td></tr><tr class="total-row"><td colspan="2">Total</td><td>518</td><td>100%</td></tr></tbody></table>
       </div>
     </div>
     <div style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px;margin-top:6px">Jan, Feb &amp; March — top MCC comparison</div>
@@ -650,30 +619,30 @@ const fmt = n => '$' + Math.round(n).toLocaleString('en-US');
 const pct = (a,b) => b>0 ? (a/b*100).toFixed(1)+'%' : '—';
 
 new Chart(document.getElementById('bar1'),{type:'bar',data:{labels:months,datasets:[
-  {label:'Won',data:D.map(d=>d.won),backgroundColor:'#1a6b52',stack:'s'},
+  {label:'Won',data:D.map(d=>d.won),backgroundColor:'#3a7a62',stack:'s'},
   {label:'Merchant refund',data:D.map(d=>d.ref),backgroundColor:'#6b9dc2',stack:'s'},
-  {label:'Stopped',data:D.map(d=>d.stop),backgroundColor:'#c4912a',stack:'s'},
-  {label:'Lost',data:D.map(d=>d.lost),backgroundColor:'#a33b3b',stack:'s'},
-  {label:'In progress',data:D.map(d=>d.prog),backgroundColor:'#a8d5c4',stack:'s'},
+  {label:'Stopped',data:D.map(d=>d.stop),backgroundColor:'#a87d30',stack:'s'},
+  {label:'Lost',data:D.map(d=>d.lost),backgroundColor:'#8b3535',stack:'s'},
+  {label:'In progress',data:D.map(d=>d.prog),backgroundColor:'#c8e2da',stack:'s'},
 ]},options:{...OPTS,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
   scales:{x:{stacked:true,ticks:{...tickSm,autoSkip:false},grid:{display:false}},y:{stacked:true,ticks:tickSm,grid:gridY}}}});
 
 new Chart(document.getElementById('line1'),{type:'line',data:{labels:months,datasets:[
-  {label:'Win rate',data:D.map(d=>{const o=d.won+d.prog+d.lost+d.ref+d.stop;return o>0?+(d.won/o*100).toFixed(1):null;}),borderColor:'#1a6b52',backgroundColor:'rgba(26,107,82,0.07)',tension:0.3,pointRadius:4,fill:true},
+  {label:'Win rate',data:D.map(d=>{const o=d.won+d.prog+d.lost+d.ref+d.stop;return o>0?+(d.won/o*100).toFixed(1):null;}),borderColor:'#3a7a62',backgroundColor:'rgba(58,122,98,0.08)',tension:0.3,pointRadius:4,fill:true},
   {label:'Merchant refund rate',data:D.map(d=>{const o=d.won+d.prog+d.lost+d.ref+d.stop;return o>0?+(d.ref/o*100).toFixed(1):null;}),borderColor:'#6b9dc2',tension:0.3,pointRadius:4},
-  {label:'Loss rate',data:D.map(d=>{const o=d.won+d.prog+d.lost+d.ref+d.stop;return o>0?+(d.lost/o*100).toFixed(1):null;}),borderColor:'#a33b3b',tension:0.3,pointRadius:4},
+  {label:'Loss rate',data:D.map(d=>{const o=d.won+d.prog+d.lost+d.ref+d.stop;return o>0?+(d.lost/o*100).toFixed(1):null;}),borderColor:'#8b3535',tension:0.3,pointRadius:4},
 ]},options:{...OPTS,plugins:{legend:{display:true,position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10,boxHeight:2}}},
   scales:{x:{ticks:{...tickSm,autoSkip:false},grid:{display:false}},y:{ticks:{...tickSm,callback:v=>v+'%'},grid:gridY,min:0,max:100}}}});
 
 new Chart(document.getElementById('bar2'),{type:'bar',data:{labels:months,datasets:[
-  {label:'Recovered',data:D.map(d=>d.wonCusd),backgroundColor:'#1a6b52',stack:'s'},
-  {label:'Temp. to be recovered',data:D.map(d=>d.progCusd),backgroundColor:'#a8d5c4',stack:'s'},
-  {label:'Financial loss',data:D.map(d=>d.finLusd),backgroundColor:'#a33b3b',stack:'s'},
+  {label:'Recovered',data:D.map(d=>d.wonCusd),backgroundColor:'#3a7a62',stack:'s'},
+  {label:'Temp. to be recovered',data:D.map(d=>d.progCusd),backgroundColor:'#c8e2da',stack:'s'},
+  {label:'Financial loss',data:D.map(d=>d.finLusd),backgroundColor:'#8b3535',stack:'s'},
 ]},options:{...OPTS,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.raw)}}},
   scales:{x:{stacked:true,ticks:{...tickSm,autoSkip:false},grid:{display:false}},y:{stacked:true,ticks:{...tickSm,callback:v=>'$'+Math.round(v/1000)+'k'},grid:gridY}}}});
 
 new Chart(document.getElementById('line2'),{type:'line',data:{labels:months,datasets:[
-  {label:'Loss rate %',data:D.map(d=>d.cred>0?+(d.finL/d.cred*100).toFixed(1):null),borderColor:'#a33b3b',backgroundColor:'rgba(163,59,59,0.07)',tension:0.3,pointRadius:4,fill:true},
+  {label:'Loss rate %',data:D.map(d=>d.cred>0?+(d.finL/d.cred*100).toFixed(1):null),borderColor:'#8b3535',backgroundColor:'rgba(139,53,53,0.08)',tension:0.3,pointRadius:4,fill:true},
 ]},options:{...OPTS,plugins:{legend:{display:false}},
   scales:{x:{ticks:{...tickSm,autoSkip:false},grid:{display:false}},y:{ticks:{...tickSm,callback:v=>v+'%'},grid:gridY,min:0}}}});
 
@@ -684,8 +653,8 @@ new Chart(document.getElementById('donut3'),{type:'doughnut',data:{
   datasets:[{data:reasonData,backgroundColor:['#0c447c','#378ADD','#85B7EB','#EF9F27','#B4B2A9','#1D9E75','#9FE1CB','#D3D1C7'],borderWidth:2,borderColor:'#fff'}]
 },options:{...OPTS,cutout:'58%',plugins:{legend:{display:true,position:'bottom',labels:{font:{size:10},padding:6,boxWidth:10,boxHeight:10}},tooltip:{callbacks:{label:ctx=>ctx.raw+' cases'}}}}});
 
-const mccLabels = ["5399 - General Merchandise","4121 - Taxicabs & Rideshare","5812 - Restaurants","7011 - Hotels & Lodging","5814 - Fast Food","7372 - Software & SaaS","5734 - Computer Software Stores","4722 - Travel Agencies","4511 - Airlines","5818 - Digital Goods - Multi-Category","4816 - Computer Network/Info Services","7399 - Business Services"];
-const mccData   = [139,96,56,19,16,13,12,11,11,11,10,9];
+const mccLabels = ["5399 - General Merchandise","4121 - Taxicabs & Rideshare","5812 - Restaurants","7011 - Hotels & Lodging","5814 - Fast Food","7372 - Software & SaaS","5734 - Computer Software Stores","4722 - Travel Agencies","4511 - Airlines","5818 - Digital Goods - Multi-Category"];
+const mccData   = [139,96,56,19,16,13,12,11,11,11];
 new Chart(document.getElementById('bar5'),{type:'bar',data:{
   labels:mccLabels,
   datasets:[{data:mccData,backgroundColor:mccData.map((_,i)=>i===0?'#0c447c':i===1?'#185FA5':'#378ADD'),borderRadius:3}]
@@ -718,16 +687,16 @@ makeGroupedBar('bar_proc',procKeys, months, [procKeys.map(k=>procM1[k]||0),procK
 makeGroupedBar('bar_tds', tdsKeys,  months, [tdsKeys.map(k=>tdsM1[k]||0), tdsKeys.map(k=>tdsM2[k]||0), tdsKeys.map(k=>tdsM3[k]||0)]);
 
 // Section 5 — MCC comparison chart (vertical grouped bar, top 8)
-const mccChartLabels = ["General Merchandise","Taxicabs & Rideshare","Restaurants","Hotels & Lodging","Fast Food","Software & SaaS","Computer Software Stor…","Airlines"];
-const mccChartM1 = [1,8,21,2,27,14,11,6];
-const mccChartM2 = [12,27,48,2,13,0,8,1];
-const mccChartM3 = [139,96,56,19,16,13,12,11];
+const mccChartLabels = ["General Merchandise","Taxicabs & Rideshare","Restaurants","Hotels & Lodging","Fast Food","Software & SaaS","Computer Software Stor…","Airlines","Digital Goods - Multi-…","Travel Agencies"];
+const mccChartM1 = [1,8,21,2,27,14,11,6,9,20];
+const mccChartM2 = [12,27,48,2,13,0,8,1,4,2];
+const mccChartM3 = [139,96,56,19,16,13,12,11,11,11];
 new Chart(document.getElementById('bar_mcc_compare'),{type:'bar',data:{
   labels: mccChartLabels,
   datasets:[
-    {label:months[0],data:mccChartM1,backgroundColor:'rgba(136,135,128,0.35)',borderRadius:3},
-    {label:months[1],data:mccChartM2,backgroundColor:'rgba(136,135,128,0.65)',borderRadius:3},
-    {label:months[2],data:mccChartM3,backgroundColor:'#0c447c',borderRadius:3},
+    {label:months[0],data:mccChartM1,backgroundColor:'rgba(120,118,110,0.3)',borderRadius:3},
+    {label:months[1],data:mccChartM2,backgroundColor:'rgba(120,118,110,0.55)',borderRadius:3},
+    {label:months[2],data:mccChartM3,backgroundColor:'#1a3d6b',borderRadius:3},
   ]
 },options:{...OPTS,
   plugins:{legend:{display:true,position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10,boxHeight:8}},
@@ -746,9 +715,9 @@ const reasonChartM3 = [373,65,33,21,16,9,1,0];
 new Chart(document.getElementById('bar_reason_compare'),{type:'bar',data:{
   labels: reasonChartLabels,
   datasets:[
-    {label:months[0],data:reasonChartM1,backgroundColor:'rgba(136,135,128,0.4)',borderRadius:3},
-    {label:months[1],data:reasonChartM2,backgroundColor:'rgba(136,135,128,0.7)',borderRadius:3},
-    {label:months[2],data:reasonChartM3,backgroundColor:'#0c447c',borderRadius:3},
+    {label:months[0],data:reasonChartM1,backgroundColor:'rgba(120,118,110,0.32)',borderRadius:3},
+    {label:months[1],data:reasonChartM2,backgroundColor:'rgba(120,118,110,0.58)',borderRadius:3},
+    {label:months[2],data:reasonChartM3,backgroundColor:'#1a3d6b',borderRadius:3},
   ]
 },options:{...OPTS,indexAxis:'y',
   plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
@@ -760,7 +729,7 @@ new Chart(document.getElementById('bar_reason_compare'),{type:'bar',data:{
 
 const bpsVals = [2.29,1.42,0.13];
 new Chart(document.getElementById('bpsLine'),{type:'line',data:{labels:months,datasets:[
-  {label:'BPS',data:bpsVals,borderColor:'#0c447c',backgroundColor:'rgba(12,68,124,0.07)',
+  {label:'BPS',data:bpsVals,borderColor:'#1a3d6b',backgroundColor:'rgba(26,61,107,0.08)',
    pointBackgroundColor:bpsVals.map(v=>v==null?'#0c447c':v>=7?'#791f1f':v<=4?'#0f6e56':'#EF9F27'),
    pointRadius:7,tension:0.3,fill:true}
 ]},options:{...OPTS,plugins:{legend:{display:false},
