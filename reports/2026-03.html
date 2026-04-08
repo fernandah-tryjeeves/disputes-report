@@ -115,7 +115,7 @@
       </div>
     </div>
     <div class="ai-body" id="ai-body">
-      <p>March saw a total of 1029 tickets, with 381 disputes initiated, representing 37.0% of all tickets. While this volume remains significant, our chargeback basis points (BPS) experienced a substantial decrease from 1.42 BPS in February to 0.13 BPS in March, indicating improved transaction legitimacy across all card swipes. We maintained a 16.8% win rate, recovering $23,215, and a 18.1% refund rate securing $5,732.</p><p>The primary driver of disputes continues to be "transaction not recognized," accounting for 74.0% of all cases. This is heavily influenced by MCC 5399 (General Merchandise) purchases, suggesting a potential area for enhanced cardholder education and proactive communication regarding spending and merchant details. A concerning 242 cases remain in progress, representing a backlog needing prioritized attention.</p><p>Notably, credits issued amount to $91,766 across 293 cases, while confirmed financial losses remain minimal at $363 over 22 cases. Our recovery rate stands at 15.6%, offering room for improvement. Given the high volume of "transaction not recognized" disputes, focus on enhancing cardholder communication about spending details immediately after a transaction is made.</p>
+      <p>March saw a significant decrease in overall dispute volume compared to January and February, with a chargeback rate of only 0.13 bps. While total tickets were 1029, disputes opened only represented 37% of those tickets (381 cases), indicating an improvement in pre-dispute resolution and customer education. Our win rate held steady at 16.8%, recovering $23,215, but the credit issuance rate remained high at 15.6% ($91,766), impacting overall recovery.</p><p>A substantial 74% of disputes were related to unrecognized transactions, highlighting a continued need for proactive communication and clarity around merchant descriptors. The top Merchant Category Code (MCC) remained General Merchandise (5399), aligning with previous months and suggesting this is a common point of confusion for cardholders. We are still carrying over 242 in progress cases.</p><p>Although financial losses due to disputed transactions only totaled $363 across 22 cases, the overall cost associated with processing and resolving disputes, along with the high credit issuance, is worth tracking. Continued focus on addressing unrecognized transactions and clarifying merchant information is crucial to minimizing future disputes and optimizing recovery efforts.</p><p>We recommend implementing a targeted communication campaign to proactively educate cardholders about common merchant descriptors and dispute resolution processes before a charge is made.</p>
     </div>
   </div>
 
@@ -374,7 +374,7 @@
           </span>
         </div>
         <table><thead><tr><th>MCC</th><th>Category</th><th>Cases</th><th>%</th></tr></thead>
-        <tbody><tr><td>5399</td><td class="left">General Merchandise</td><td>152</td><td style="font-weight:700">14.8%</td></tr><tr><td>4121</td><td class="left">Taxicabs & Rideshare</td><td>131</td><td style="font-weight:700">12.7%</td></tr><tr><td>5812</td><td class="left">Restaurants</td><td>125</td><td style="font-weight:700">12.1%</td></tr><tr><td>5814</td><td class="left">Fast Food</td><td>56</td><td style="font-weight:700">5.4%</td></tr><tr><td>7311</td><td class="left">Advertising Services</td><td>45</td><td style="font-weight:700">4.4%</td></tr><tr><td>4722</td><td class="left">Travel Agencies</td><td>33</td><td style="font-weight:700">3.2%</td></tr><tr><td>5734</td><td class="left">Computer Software Stores</td><td>31</td><td style="font-weight:700">3.0%</td></tr><tr><td>7372</td><td class="left">Software & SaaS</td><td>27</td><td style="font-weight:700">2.6%</td></tr><tr><td>4816</td><td class="left">Computer Network/Info Services</td><td>27</td><td style="font-weight:700">2.6%</td></tr><tr><td>7399</td><td class="left">Business Services</td><td>27</td><td style="font-weight:700">2.6%</td></tr><tr><td>5411</td><td class="left">Grocery Stores</td><td>26</td><td style="font-weight:700">2.5%</td></tr><tr><td>5818</td><td class="left">Digital Goods - Multi-Category</td><td>24</td><td style="font-weight:700">2.3%</td></tr><tr><td>—</td><td class="left" style="color:#888780">Others (76 categories)</td><td style="color:#888780">325</td><td style="font-weight:700;color:#888780">31.6%</td></tr><tr class="total-row"><td colspan="2">Total</td><td>1029</td><td>100%</td></tr></tbody></table>
+        <tbody><tr><td>5399</td><td class="left">General Merchandise</td><td>152</td><td style="font-weight:700">14.8%</td></tr><tr><td>4121</td><td class="left">Taxicabs & Rideshare</td><td>131</td><td style="font-weight:700">12.7%</td></tr><tr><td>5812</td><td class="left">Restaurants</td><td>125</td><td style="font-weight:700">12.1%</td></tr><tr><td>5814</td><td class="left">Fast Food</td><td>56</td><td style="font-weight:700">5.4%</td></tr><tr><td>7311</td><td class="left">Advertising Services</td><td>45</td><td style="font-weight:700">4.4%</td></tr><tr><td>4722</td><td class="left">Travel Agencies</td><td>33</td><td style="font-weight:700">3.2%</td></tr><tr><td>5734</td><td class="left">Computer Software Stores</td><td>31</td><td style="font-weight:700">3.0%</td></tr><tr><td>7372</td><td class="left">Software & SaaS</td><td>27</td><td style="font-weight:700">2.6%</td></tr><tr><td>4816</td><td class="left">Computer Network/Info Services</td><td>27</td><td style="font-weight:700">2.6%</td></tr><tr><td>7399</td><td class="left">Business Services</td><td>27</td><td style="font-weight:700">2.6%</td></tr><tr><td>5411</td><td class="left">Grocery Stores</td><td>26</td><td style="font-weight:700">2.5%</td></tr><tr><td>5818</td><td class="left">Digital Goods - Multi-Category</td><td>24</td><td style="font-weight:700">2.3%</td></tr><tr class="total-row"><td colspan="2">Total</td><td>1029</td><td>100%</td></tr></tbody></table>
       </div>
     </div>
   </div>
@@ -563,41 +563,7 @@ new Chart(document.getElementById('bpsLine'),{type:'line',data:{labels:months,da
   scales:{x:{ticks:tickSm,grid:{display:false}},
           y:{ticks:{...tickSm,callback:v=>v+' bps'},grid:gridY,min:0}}}});
 
-(async () => {
-  const aiBody = document.getElementById('ai-body');
-  try {
-    const prompt = `You are a disputes analyst at Jeeves, a corporate card fintech. Write a concise but insightful analysis (3–4 short paragraphs) for March 2026. This is a monthly report — Jan and Feb are included only as trend context. Be direct, use specific numbers, focus on March 2026 highlights and what to watch. End with 1 actionable recommendation.
 
-Key metrics:
-- Total tickets: 1029 | Disputes opened: 381 (37.0%)
-- Win rate: 16.8% | Refund rate: 18.1% | Loss rate: 0.3%
-- Won amount: $23,215 | Lost amount: $88
-- Credits issued: 293 / $91,766 | Recovery rate: 15.6%
-- Financial loss confirmed: 22 cases / $363
-- In progress (pending): 242 cases
-- Chargeback BPS: 1.16 (Jan: 2.29 bps, Feb: 1.42 bps, March: 0.13 bps)
-- Top dispute reason: transaction_not_recognised (74.0%)
-- Top MCC: 5399|General Merchandise
-- Highlight month: March 2026
-
-Write in plain English, no markdown formatting, no bullet points. Paragraphs only.`;
-
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await resp.json();
-    const text = data.content?.find(b => b.type === 'text')?.text || 'Analysis unavailable.';
-    aiBody.innerHTML = text.split('\n\n').filter(p=>p.trim()).map(p=>`<p>${p.trim()}</p>`).join('');
-  } catch(e) {
-    aiBody.innerHTML = '<p class="ai-loading">Analysis could not be loaded. Please refresh the page.</p>';
-  }
-})();
 </script>
 </body>
 </html>
