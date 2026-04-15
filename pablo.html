@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disputes by Organisation · Jeeves</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+         background: #f5f4f0; color: #1a1a18; font-size: 14px; line-height: 1.6; }
+  .page { max-width: 1200px; margin: 0 auto; padding: 32px 28px; }
+  .header { display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid #e0dfd8; }
+  .header h1 { font-size: 20px; font-weight: 600; }
+  .header p  { font-size: 12px; color: #888780; margin-top: 2px; }
+  .header-meta { font-size: 11px; color: #b4b2a9; text-align: right; }
+  .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+  .search-wrap { position: relative; flex: 1; min-width: 220px; }
+  .search-wrap input { width: 100%; padding: 8px 12px 8px 34px; border: 1px solid #e0dfd8;
+                        border-radius: 8px; background: #fff; font-size: 13px; color: #1a1a18; outline: none; }
+  .search-wrap input:focus { border-color: #b4b2a9; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+                 color: #b4b2a9; font-size: 14px; pointer-events: none; }
+  select { padding: 8px 10px; border: 1px solid #e0dfd8; border-radius: 8px;
+           background: #fff; font-size: 13px; color: #1a1a18; outline: none; cursor: pointer; }
+  .pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .pill-spike { background: #faeeda; color: #633806; }
+  .pill-gray  { background: #f1efe8; color: #5f5e5a; }
+  .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+  .scard { background: #f1efe8; border-radius: 10px; padding: 13px 15px; }
+  .scard-label { font-size: 10px; color: #888780; font-weight: 600; text-transform: uppercase;
+                 letter-spacing: .06em; margin-bottom: 4px; }
+  .scard-value { font-size: 22px; font-weight: 600; line-height: 1; }
+  .table-wrap { background: #fff; border: 1px solid #e0dfd8; border-radius: 12px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th { padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 600;
+             color: #888780; text-transform: uppercase; letter-spacing: .06em;
+             background: #faf9f7; border-bottom: 1px solid #e0dfd8; white-space: nowrap; cursor: pointer; }
+  thead th:hover { color: #1a1a18; }
+  thead th.sorted::after { content: ' ↓'; }
+  thead th.sorted.asc::after { content: ' ↑'; }
+  tbody tr { border-bottom: 0.5px solid #f1efe8; cursor: pointer; transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover, tbody tr.expanded { background: #faf9f7; }
+  tbody td { padding: 10px 12px; vertical-align: middle; }
+  .org-name { font-weight: 600; font-size: 13px; }
+  .org-id   { font-size: 10px; color: #b4b2a9; margin-top: 1px; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .trend-bar { display: flex; align-items: flex-end; gap: 2px; height: 24px; }
+  .trend-bar span { background: #b5d4f4; border-radius: 2px; min-width: 6px; flex: 1; }
+  .trend-bar span.last  { background: #0c447c; }
+  .trend-bar span.spike { background: #e24b4a; }
+  .expand-row td { padding: 0; background: #f5f4f0; border-bottom: 1px solid #e0dfd8; }
+  .expand-inner { padding: 16px 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .detail-block h4 { font-size: 10px; font-weight: 600; color: #888780; text-transform: uppercase;
+                     letter-spacing: .06em; margin-bottom: 8px; }
+  .detail-row { display: flex; justify-content: space-between; align-items: center;
+                font-size: 11px; padding: 3px 0; border-bottom: 0.5px solid #e0dfd8; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { color: #5f5e5a; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .detail-val { font-weight: 600; }
+  .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .status-item { font-size: 11px; display: flex; justify-content: space-between; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+  .mini-bars { display: flex; align-items: flex-end; gap: 3px; height: 40px; margin-top: 6px; }
+  .mini-bar { border-radius: 2px 2px 0 0; min-width: 10px; flex: 1; position: relative; }
+  .mini-bar span { position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+                   font-size: 9px; color: #888780; white-space: nowrap; }
+  .spike-banner { background: #faeeda; border: 1px solid #EF9F27; border-radius: 10px;
+                  padding: 10px 14px; margin-bottom: 16px; font-size: 12px; color: #633806;
+                  display: none; gap: 8px; align-items: flex-start; }
+  .spike-banner.visible { display: flex; }
+  .spike-banner b { display: block; font-size: 13px; margin-bottom: 2px; }
+  .state { text-align: center; padding: 60px 20px; color: #888780; font-size: 13px; }
+  .state strong { display: block; font-size: 18px; font-weight: 600; color: #1a1a18; margin-bottom: 8px; }
+  .spinner { display: inline-block; width: 24px; height: 24px; border: 2px solid #e0dfd8;
+             border-top-color: #888780; border-radius: 50%; animation: spin .8s linear infinite; margin-bottom: 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>Disputes by Organisation</h1>
+      <p>All-time · Metabase Q16937 · Disputes Operations</p>
+    </div>
+    <div class="header-meta" id="meta">Loading…</div>
+  </div>
+  <div class="spike-banner" id="spike-banner">
+    <span style="font-size:16px">⚠</span>
+    <div id="spike-text"></div>
+  </div>
+  <div class="summary">
+    <div class="scard"><div class="scard-label">Organisations</div><div class="scard-value" id="s-orgs">—</div></div>
+    <div class="scard"><div class="scard-label">Total cases</div><div class="scard-value" id="s-cases">—</div></div>
+    <div class="scard"><div class="scard-label">Total amount</div><div class="scard-value" id="s-usd">—</div></div>
+    <div class="scard"><div class="scard-label">Orgs with spike</div><div class="scard-value" id="s-spikes" style="color:#791f1f">—</div></div>
+  </div>
+  <div class="controls">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="search" placeholder="Search by org name or ID…" oninput="render()">
+    </div>
+    <select id="sort" onchange="render()">
+      <option value="total_cases">Sort: most cases</option>
+      <option value="total_usd">Sort: highest USD</option>
+      <option value="spike">Sort: spike first</option>
+      <option value="loss_rate">Sort: highest loss rate</option>
+      <option value="customer">Sort: name A→Z</option>
+    </select>
+    <select id="filter-status" onchange="render()">
+      <option value="">All orgs</option>
+      <option value="spike">Spike only ⚠</option>
+      <option value="loss">Loss rate &gt; 5%</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <div id="state" class="state"><div class="spinner"></div><br>Loading disputes data…</div>
+    <table id="tbl" style="display:none">
+      <thead>
+        <tr>
+          <th onclick="sortBy('customer')">Organisation</th>
+          <th onclick="sortBy('total_cases')" class="num sorted" id="th-total_cases">Cases</th>
+          <th onclick="sortBy('total_usd')" class="num" id="th-total_usd">Amount (USD)</th>
+          <th onclick="sortBy('win_rate')" class="num" id="th-win_rate">Win rate</th>
+          <th onclick="sortBy('loss_rate')" class="num" id="th-loss_rate">Loss rate</th>
+          <th class="num">Top reason</th>
+          <th class="num">6-mo trend</th>
+          <th class="num">Spike?</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+<script>
+const DATA_URL = 'https://fernandah-creator.github.io/disputes-report/disputes.json';
+let allOrgs = [], meta = {}, expandedId = null, sortKey = 'total_cases', sortAsc = false;
+
+const fmt   = n  => '$' + Math.round(n).toLocaleString('en-US');
+const pct   = v  => v == null ? '—' : v.toFixed(1) + '%';
+const trunc = (s, n=28) => s && s.length > n ? s.slice(0,n)+'…' : (s||'—');
+
+async function load() {
+  try {
+    const r = await fetch(DATA_URL + '?t=' + Date.now());
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    meta = d; allOrgs = d.orgs || [];
+    document.getElementById('s-orgs').textContent  = allOrgs.length.toLocaleString();
+    document.getElementById('s-cases').textContent = (d.total_cases||0).toLocaleString();
+    document.getElementById('s-usd').textContent   = fmt(allOrgs.reduce((a,o)=>a+o.total_usd,0));
+    document.getElementById('s-spikes').textContent = allOrgs.filter(o=>o.spike?.detected).length;
+    document.getElementById('meta').innerHTML =
+      `Generated ${new Date(d.generated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}<br>
+       Range: ${d.months_range?.from||'—'} → ${d.months_range?.to||'—'}`;
+    showSpikeBanner();
+    render();
+  } catch(e) {
+    document.getElementById('state').innerHTML =
+      `<strong>Could not load data</strong>Run the export first, then refresh.<br><small style="color:#b4b2a9">${e.message}</small>`;
+  }
+}
+
+function showSpikeBanner() {
+  const spikes = allOrgs.filter(o=>o.spike?.detected)
+    .sort((a,b)=>b.spike.recent_cases-a.spike.recent_cases).slice(0,3);
+  if (!spikes.length) return;
+  document.getElementById('spike-banner').classList.add('visible');
+  document.getElementById('spike-text').innerHTML =
+    `<b>${spikes.length} org${spikes.length>1?'s':''} with sudden dispute spikes</b>` +
+    spikes.map(o=>`${o.customer}: ${o.spike.prev_cases} → ${o.spike.recent_cases} cases (${o.spike.ratio}×)`).join(' · ');
+}
+
+function sortBy(key) {
+  if (sortKey===key) { sortAsc=!sortAsc; } else { sortKey=key; sortAsc=key==='customer'; }
+  document.querySelectorAll('thead th').forEach(th=>{
+    th.classList.remove('sorted','asc');
+    if (th.id==='th-'+sortKey) { th.classList.add('sorted'); if(sortAsc) th.classList.add('asc'); }
+  });
+  render();
+}
+
+function render() {
+  const q      = document.getElementById('search').value.toLowerCase();
+  const filter = document.getElementById('filter-status').value;
+  let orgs = [...allOrgs];
+  if (q) orgs = orgs.filter(o=>o.customer.toLowerCase().includes(q)||o.org_id.toLowerCase().includes(q));
+  if (filter==='spike') orgs = orgs.filter(o=>o.spike?.detected);
+  if (filter==='loss')  orgs = orgs.filter(o=>o.loss_rate>5);
+  orgs.sort((a,b)=>{
+    let va=a[sortKey], vb=b[sortKey];
+    if (sortKey==='spike') { va=a.spike?.detected?1:0; vb=b.spike?.detected?1:0; }
+    if (sortKey==='customer') { va=a.customer; vb=b.customer; }
+    if (typeof va==='string') return sortAsc?va.localeCompare(vb):vb.localeCompare(va);
+    va=va??-1; vb=vb??-1;
+    return sortAsc?va-vb:vb-va;
+  });
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  if (!orgs.length) {
+    document.getElementById('tbl').style.display='none';
+    document.getElementById('state').style.display='';
+    document.getElementById('state').innerHTML='<strong>No results</strong>Try adjusting the search or filter.';
+    return;
+  }
+  document.getElementById('tbl').style.display='';
+  document.getElementById('state').style.display='none';
+  for (const org of orgs) {
+    const tMax = Math.max(...org.trend.map(t=>t.cases),1);
+    const trendBars = org.trend.map((t,i)=>{
+      const h=Math.round(t.cases/tMax*24)||2;
+      const cls=i===org.trend.length-1?(org.spike?.detected?'spike':'last'):'';
+      return `<span style="height:${h}px" class="${cls}" title="${t.month}: ${t.cases}"></span>`;
+    }).join('');
+    const spikeHtml = org.spike?.detected
+      ? `<span class="pill pill-spike">+${org.spike.ratio}× ⚠</span>`
+      : `<span class="pill pill-gray">—</span>`;
+    const tr = document.createElement('tr');
+    if (expandedId===org.org_id) tr.classList.add('expanded');
+    tr.innerHTML = `
+      <td><div class="org-name">${esc(trunc(org.customer,34))}</div><div class="org-id">${esc(org.org_id)}</div></td>
+      <td class="num"><strong>${org.total_cases.toLocaleString()}</strong></td>
+      <td class="num">${fmt(org.total_usd)}</td>
+      <td class="num" style="color:${org.win_rate>=50?'#0f6e56':'#888780'}">${pct(org.win_rate)}</td>
+      <td class="num" style="color:${org.loss_rate>5?'#791f1f':'#1a1a18'}">${pct(org.loss_rate)}</td>
+      <td class="num" style="color:#5f5e5a;font-size:11px">${esc(trunc(org.top_reasons[0]?.label||'—',24))}</td>
+      <td><div class="trend-bar">${trendBars}</div></td>
+      <td>${spikeHtml}</td>`;
+    tr.addEventListener('click',()=>toggleExpand(org));
+    tbody.appendChild(tr);
+    if (expandedId===org.org_id) {
+      const exp = document.createElement('tr');
+      exp.className='expand-row';
+      exp.innerHTML=`<td colspan="8">${buildExpand(org)}</td>`;
+      tbody.appendChild(exp);
+    }
+  }
+}
+
+function toggleExpand(org) {
+  expandedId = expandedId===org.org_id ? null : org.org_id;
+  render();
+}
+
+function buildExpand(org) {
+  const sc = {won:'#1D9E75',refunded:'#378ADD',in_progress:'#EF9F27',
+               lost:'#E24B4A',not_eligible:'#888780',stopped:'#b4b2a9',other:'#d3d1c7'};
+  const statusHtml = Object.entries(org.statuses).map(([k,v])=>
+    `<div class="status-item">
+      <span><span class="status-dot" style="background:${sc[k]||'#ccc'}"></span>${k.replace('_',' ')}</span>
+      <strong>${v}</strong>
+    </div>`).join('');
+  const reasonHtml = org.top_reasons.slice(0,5).map(r=>
+    `<div class="detail-row">
+      <span class="detail-label" title="${esc(r.label)}">${esc(trunc(r.label,28))}</span>
+      <span class="detail-val">${r.count}</span>
+    </div>`).join('') || '<div class="detail-row"><span class="detail-label">—</span></div>';
+  const merchantHtml = org.top_merchants.slice(0,5).map(m=>
+    `<div class="detail-row">
+      <span class="detail-label" title="${esc(m.label)}">${esc(trunc(m.label,26))}</span>
+      <span class="detail-val">${m.count}</span>
+    </div>`).join('') || '<div class="detail-row"><span class="detail-label">—</span></div>';
+  const tMax = Math.max(...org.trend.map(t=>t.cases),1);
+  const miniBars = org.trend.map((t,i)=>{
+    const h=Math.round(t.cases/tMax*40)||2;
+    const col=i===org.trend.length-1?(org.spike?.detected?'#e24b4a':'#0c447c'):'#b5d4f4';
+    return `<div class="mini-bar" style="height:${h}px;background:${col}" title="${t.month}: ${t.cases} cases">
+              <span>${t.month.slice(5)}</span></div>`;
+  }).join('');
+  return `<div class="expand-inner">
+    <div class="detail-block">
+      <h4>Status breakdown</h4>
+      <div class="status-grid">${statusHtml}</div>
+    </div>
+    <div class="detail-block">
+      <h4>Top dispute reasons</h4>${reasonHtml}
+    </div>
+    <div class="detail-block">
+      <h4>Top merchants</h4>${merchantHtml}
+    </div>
+    <div class="detail-block">
+      <h4>6-month trend</h4>
+      <div class="mini-bars">${miniBars}</div>
+      ${org.spike?.detected
+        ? `<div style="margin-top:8px;font-size:11px;color:#633806;background:#faeeda;padding:6px 8px;border-radius:6px">
+             ⚠ ${org.spike.prev_cases} → ${org.spike.recent_cases} cases (${org.spike.ratio}×) ${org.spike.prev_month} → ${org.spike.recent_month}
+           </div>` : ''}
+    </div>
+  </div>`;
+}
+
+function esc(s) {
+  return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+load();
+</script>
+</body>
+</html>
