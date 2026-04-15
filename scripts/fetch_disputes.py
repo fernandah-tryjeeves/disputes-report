@@ -6,11 +6,11 @@ METABASE_KEY = os.environ["METABASE_API_KEY"]
 CARD_ID = 16937
 
 def fetch_rows():
-    today     = datetime.date.today().isoformat()
-    year_ago  = (datetime.date.today() - datetime.timedelta(days=365)).isoformat()
+    today    = datetime.date.today().isoformat()
+    year_ago = (datetime.date.today() - datetime.timedelta(days=365)).isoformat()
     body = json.dumps({"parameters": [
         {"type":"date/single","value":year_ago,"target":["variable",["template-tag","Date_From"]]},
-        {"type":"date/single","value":today,    "target":["variable",["template-tag","Date_To"]]}
+        {"type":"date/single","value":today,   "target":["variable",["template-tag","Date_To"]]}
     ]}).encode()
     req = urllib.request.Request(
         f"{METABASE_URL}/api/card/{CARD_ID}/query/json",
@@ -59,8 +59,8 @@ def process(rows):
         won      = o["statuses"].get("won",0)
         resolved = won + o["statuses"].get("lost",0) + o["statuses"].get("not_eligible",0)
         wr       = round(won/resolved*100,1) if resolved > 0 else None
-        top_r    = sorted(o["reasons"].items(),   key=lambda x:-x[1])
-        top_m    = sorted(o["merchants"].items(),  key=lambda x:-x[1])
+        top_r    = sorted(o["reasons"].items(),  key=lambda x:-x[1])
+        top_m    = sorted(o["merchants"].items(), key=lambda x:-x[1])
         trend    = [{"month":m,"cases":o["months"].get(m,0),"usd":0} for m in all_months]
         active   = sum(1 for t in trend if t["cases"]>0)
         if active < 2: continue
@@ -85,15 +85,15 @@ def process(rows):
         "generated_at": datetime.datetime.utcnow().isoformat()+"Z",
         "total_cases":  sum(o["total_cases"] for o in result),
         "total_orgs":   len(result),
-        "months_range": {"from": mwd[0] if mwd else "","to": mwd[-1] if mwd else ""},
+        "months_range": {"from": mwd[0] if mwd else "", "to": mwd[-1] if mwd else ""},
         "orgs": result
     }
 
 print("Fetching Metabase Q16937...")
 rows = fetch_rows()
-print(f"Rows fetched: {len(rows)}")
+print(f"Rows: {len(rows)}")
 output = process(rows)
 print(f"Orgs: {output['total_orgs']}, Cases: {output['total_cases']}")
 with open("disputes.json","w") as f:
     json.dump(output, f, ensure_ascii=False)
-print("disputes.json saved OK")
+print("disputes.json saved")

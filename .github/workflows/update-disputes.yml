@@ -1,0 +1,35 @@
+name: Update disputes data
+
+on:
+  schedule:
+    - cron: "0 8 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch and process disputes
+        env:
+          METABASE_URL: ${{ secrets.METABASE_URL }}
+          METABASE_API_KEY: ${{ secrets.METABASE_API_KEY }}
+        run: python3 scripts/fetch_disputes.py
+
+      - name: Commit and push
+        run: |
+          git config user.name  "disputes-bot"
+          git config user.email "disputes-bot@tryjeeves.com"
+          git add disputes.json
+          git diff --staged --quiet || git commit -m "chore: update disputes $(date -u +%Y-%m-%d)"
+          git push
