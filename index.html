@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Disputes Report — April 2026</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- GOOGLE SIGN-IN SDK — MUST LOAD FIRST -->
+<script async defer src="https://accounts.google.com/gsi/client"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   /* ────────────────────────────────────────────────────────────
@@ -98,14 +99,7 @@
     display: flex;
     justify-content: center;
     margin: 0 0 28px 0;
-    min-height: 44px;
-  }
-
-  /* Override Google button styling */
-  #g_id_render > div {
-    transform: scale(1.15);
-    transform-origin: center;
-    margin: 0;
+    min-height: 50px;
   }
 
   .login-footer {
@@ -198,9 +192,6 @@
   .green { color: var(--pos); } .red { color: var(--neg); } .blue { color: var(--accent); } .amber { color: var(--warn); } .gray { color: var(--ink-mid); }
 
   .charts2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .charts2eq { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .charts3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
-
   .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
   .card-title { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
 
@@ -213,7 +204,6 @@
   thead th:first-child { text-align: left; }
   tbody td { padding: 7px 6px; text-align: right; border-bottom: 0.5px solid #f0efeb; white-space: nowrap; }
   tbody td:first-child { text-align: left; font-weight: 600; }
-  tbody td.left { text-align: left; font-weight: 400; }
   tbody tr:hover td { background: var(--bg-muted); }
   tbody tr.total-row td { font-weight: 700; background: var(--bg-muted); border-top: 1px solid var(--border); border-bottom: none; }
 
@@ -222,7 +212,6 @@
   .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
   .footer { text-align: center; font-size: 11px; color: var(--ink-faint); margin-top: 40px; padding-top: 20px; border-top: 0.5px solid var(--border); }
 
-  /* Month comparison */
   .month-compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
   .month-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
   .month-card.highlight { border: 1.5px solid var(--accent-mid); background: linear-gradient(135deg, rgba(26,61,107,0.04) 0%, rgba(15,110,86,0.02) 100%); }
@@ -234,18 +223,12 @@
   .month-stat-value.green { color: var(--pos); }
   .month-stat-value.blue { color: var(--accent); }
   .month-stat-value.amber { color: var(--warn); }
-  .month-stat-value.red { color: var(--neg); }
 
   @media (max-width: 768px) {
     .page { padding: 20px 16px; }
     .logout-btn { padding: 6px 12px; font-size: 11px; }
     .metrics4 { grid-template-columns: repeat(2, 1fr); }
-    .charts2, .charts2eq, .charts3 { grid-template-columns: 1fr; }
-  }
-
-  @media (max-width: 480px) {
-    .metrics4 { grid-template-columns: 1fr; }
-    .login-container { padding: 40px 28px; }
+    .charts2 { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -434,6 +417,9 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT — RUNS AFTER GOOGLE SDK IS LOADED
+     ═══════════════════════════════════════════════════════════ -->
 <script>
   // ────────────────────────────────────────────────────────────
   // OAUTH Configuration
@@ -482,8 +468,10 @@
   }
 
   function initGoogleSignIn() {
-    if (!window.google || !window.google.accounts) {
-      console.warn('Google Sign-In library not loaded');
+    // Wait for Google library to load
+    if (typeof google === 'undefined' || !google.accounts) {
+      console.warn('Google library not ready, retrying...');
+      setTimeout(initGoogleSignIn, 500);
       return;
     }
 
@@ -498,8 +486,7 @@
       google.accounts.id.renderButton(renderContainer, { 
         theme: 'outline', 
         size: 'large',
-        text: 'signin_with',
-        width: '300'
+        text: 'signin_with'
       });
     }
   }
@@ -679,21 +666,13 @@
     }
   }
 
+  // ────────────────────────────────────────────────────────────
   // Init on page load
+  // ────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function() {
     checkExistingAuth();
     initGoogleSignIn();
   });
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      checkExistingAuth();
-      initGoogleSignIn();
-    });
-  } else {
-    checkExistingAuth();
-    initGoogleSignIn();
-  }
 </script>
 </body>
 </html>
