@@ -6,5 +6,699 @@
 </head>
 <body>
   Redirecting...
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disputes Report — April 2026</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  /* ────────────────────────────────────────────────────────────
+     RESET & BASE
+     ──────────────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ────────────────────────────────────────────────────────────
+     DESIGN TOKENS
+     ──────────────────────────────────────────────────────────── */
+  :root {
+    --ink:          #1a1a18;
+    --ink-mid:      #5f5e5a;
+    --ink-light:    #888780;
+    --ink-faint:    #b4b2a9;
+    --bg:           #f6f5f1;
+    --bg-card:      #ffffff;
+    --bg-muted:     #f2f1ed;
+    --border:       #e2e0d8;
+    --accent:       #1a3d6b;
+    --accent-mid:   #2d5a8e;
+    --accent-alt:   #0f6e56;
+    --pos:          #1a5c45;
+    --neg:          #5c1f1f;
+    --warn:         #5c3d00;
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     LOGIN SCREEN
+     ──────────────────────────────────────────────────────────── */
+  body.login-mode {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-alt) 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 20px;
+  }
+
+  #login-screen {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-container {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 48px 56px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .login-icon {
+    font-size: 4.5em;
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  .login-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+
+  .login-subtitle {
+    font-size: 13px;
+    color: var(--ink-light);
+    line-height: 1.7;
+    margin-bottom: 32px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .login-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     GOOGLE SIGN-IN BUTTON WRAPPER
+     ──────────────────────────────────────────────────────────── */
+  #g_id_render {
+    display: flex;
+    justify-content: center;
+    margin: 0 0 28px 0;
+    min-height: 44px;
+  }
+
+  /* Override Google button styling */
+  #g_id_render > div {
+    transform: scale(1.15);
+    transform-origin: center;
+    margin: 0;
+  }
+
+  .login-footer {
+    font-size: 12px;
+    color: var(--ink-light);
+    line-height: 1.6;
+    margin-top: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .login-error {
+    color: var(--neg);
+    background: #fff5f5;
+    border: 1px solid #f5d4d4;
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    font-size: 12px;
+    line-height: 1.6;
+    display: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .login-error.show {
+    display: block;
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     REPORT SCREEN (hidden by default)
+     ──────────────────────────────────────────────────────────── */
+  body.report-mode {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+  }
+
+  #login-screen { display: none; }
+  #report-screen { display: none; }
+
+  body.login-mode #login-screen { display: flex; }
+  body.login-mode #report-screen { display: none; }
+  body.report-mode #login-screen { display: none; }
+  body.report-mode #report-screen { display: block; }
+
+  /* ────────────────────────────────────────────────────────────
+     REPORT LAYOUT & COMPONENTS
+     ──────────────────────────────────────────────────────────── */
+  .page { max-width: 1320px; margin: 0 auto; padding: 48px 48px; position: relative; }
+
+  .logout-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 1000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transition: background 0.15s ease;
+  }
+
+  .logout-btn:hover {
+    background: var(--accent-alt);
+  }
+
+  .header { margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .header-left h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  .header-left p { font-size: 13px; color: var(--ink-light); }
+  .header-right { font-size: 12px; color: var(--ink-faint); text-align: right; }
+
+  .section { margin-bottom: 48px; }
+  .section-label { font-size: 10px; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+  .metrics4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-bottom: 16px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .metric { background: var(--bg-card); padding: 18px 20px; }
+  .metric-label { font-size: 11px; color: var(--ink-light); margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+  .metric-value { font-size: 24px; font-weight: 700; line-height: 1.05; }
+  .metric-usd { font-size: 12px; font-weight: 600; margin-top: 3px; }
+  .metric-sub { font-size: 11px; color: var(--ink-light); margin-top: 4px; line-height: 1.4; }
+
+  .green { color: var(--pos); } .red { color: var(--neg); } .blue { color: var(--accent); } .amber { color: var(--warn); } .gray { color: var(--ink-mid); }
+
+  .charts2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .charts2eq { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .charts3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+  .card-title { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+  .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ink-light); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  thead th { font-size: 10px; color: var(--ink-light); font-weight: 600; text-align: right; padding: 8px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; background: var(--bg-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  thead th:first-child { text-align: left; }
+  tbody td { padding: 7px 6px; text-align: right; border-bottom: 0.5px solid #f0efeb; white-space: nowrap; }
+  tbody td:first-child { text-align: left; font-weight: 600; }
+  tbody td.left { text-align: left; font-weight: 400; }
+  tbody tr:hover td { background: var(--bg-muted); }
+  tbody tr.total-row td { font-weight: 700; background: var(--bg-muted); border-top: 1px solid var(--border); border-bottom: none; }
+
+  .note { font-size: 11px; color: var(--ink-light); padding: 12px 16px; background: var(--bg-muted); border-radius: 6px; border-left: 2px solid var(--border); line-height: 1.7; margin-top: 14px; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+  .footer { text-align: center; font-size: 11px; color: var(--ink-faint); margin-top: 40px; padding-top: 20px; border-top: 0.5px solid var(--border); }
+
+  /* Month comparison */
+  .month-compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+  .month-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .month-card.highlight { border: 1.5px solid var(--accent-mid); background: linear-gradient(135deg, rgba(26,61,107,0.04) 0%, rgba(15,110,86,0.02) 100%); }
+  .month-card-title { font-size: 11px; font-weight: 700; color: var(--ink-mid); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .month-stat { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 0.5px solid #f0efeb; }
+  .month-stat:last-child { border-bottom: none; }
+  .month-stat-label { color: var(--ink-light); }
+  .month-stat-value { font-weight: 600; color: var(--ink); }
+  .month-stat-value.green { color: var(--pos); }
+  .month-stat-value.blue { color: var(--accent); }
+  .month-stat-value.amber { color: var(--warn); }
+  .month-stat-value.red { color: var(--neg); }
+
+  @media (max-width: 768px) {
+    .page { padding: 20px 16px; }
+    .logout-btn { padding: 6px 12px; font-size: 11px; }
+    .metrics4 { grid-template-columns: repeat(2, 1fr); }
+    .charts2, .charts2eq, .charts3 { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    .metrics4 { grid-template-columns: 1fr; }
+    .login-container { padding: 40px 28px; }
+  }
+</style>
+</head>
+<body class="login-mode">
+
+<!-- ═══════════════════════════════════════════════════════════
+     LOGIN SCREEN
+     ═══════════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-container">
+    <span class="login-icon">🔐</span>
+    <h1 class="login-title">Disputes Report</h1>
+    <p class="login-subtitle">April 2026 · Monthly Report<br>Sign in with your Jeeves account to access</p>
+    <hr class="login-divider">
+    <div id="login-error" class="login-error"></div>
+    <div id="g_id_render"></div>
+    <p class="login-footer">Only @tryjeeves.com accounts can access this report</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     REPORT SCREEN
+     ═══════════════════════════════════════════════════════════ -->
+<div id="report-screen">
+  <button class="logout-btn" onclick="logout()">Sign out</button>
+  
+  <div class="page">
+    <div class="header">
+      <div class="header-left">
+        <h1>Disputes Report · April 2026</h1>
+        <p>Monthly report · Feb & March shown as trend reference</p>
+      </div>
+      <div class="header-right">Generated May 2026<br>Disputes Operations</div>
+    </div>
+
+    <!-- SECTION 1: Dispute Outcomes -->
+    <div class="section">
+      <div class="section-label">Section 1 · Dispute outcomes — April (reporting month)</div>
+      
+      <div class="metrics4">
+        <div class="metric">
+          <div class="metric-label">Total tickets</div>
+          <div class="metric-value blue">520</div>
+          <div class="metric-sub">April</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Disputes opened</div>
+          <div class="metric-value blue">174 <span style="font-size:13px;font-weight:400">· 33.5%</span></div>
+          <div class="metric-sub">April</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">In progress</div>
+          <div class="metric-value amber">125 <span style="font-size:13px;font-weight:400">· 71.8%</span></div>
+          <div class="metric-sub">2nd presentment / evidence</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Win rate</div>
+          <div class="metric-value green">0.0%</div>
+          <div class="metric-sub">0 disputes won</div>
+        </div>
+      </div>
+
+      <div class="metrics4">
+        <div class="metric">
+          <div class="metric-label">Merchant refund rate</div>
+          <div class="metric-value blue">27.0%</div>
+          <div class="metric-usd blue">$2,746</div>
+          <div class="metric-sub">47 refunds · April</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Loss rate</div>
+          <div class="metric-value red">0.0%</div>
+          <div class="metric-usd red">$0 lost</div>
+          <div class="metric-sub">0 rejected · April</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Chargeback BPS</div>
+          <div class="metric-value green">0.28 bps</div>
+          <div class="metric-sub">April · Tutuka processors</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Credits issued</div>
+          <div class="metric-value blue">108 <span style="font-size:13px;font-weight:400">· 20.8%</span></div>
+          <div class="metric-usd blue">$27,831</div>
+        </div>
+      </div>
+
+      <div class="month-compare">
+        <div class="month-card highlight">
+          <div class="month-card-title">April (reporting)</div>
+          <div class="month-stat"><span class="month-stat-label">Tickets</span><span class="month-stat-value">520</span></div>
+          <div class="month-stat"><span class="month-stat-label">Opened</span><span class="month-stat-value blue">174</span></div>
+          <div class="month-stat"><span class="month-stat-label">In progress</span><span class="month-stat-value amber">125</span></div>
+          <div class="month-stat"><span class="month-stat-label">Merchant refund</span><span class="month-stat-value blue">47 · 27.0%</span></div>
+        </div>
+        <div class="month-card">
+          <div class="month-card-title">March</div>
+          <div class="month-stat"><span class="month-stat-label">Tickets</span><span class="month-stat-value">518</span></div>
+          <div class="month-stat"><span class="month-stat-label">Opened</span><span class="month-stat-value blue">213</span></div>
+          <div class="month-stat"><span class="month-stat-label">Won</span><span class="month-stat-value green">41 · 19.2%</span></div>
+          <div class="month-stat"><span class="month-stat-label">In progress</span><span class="month-stat-value amber">145</span></div>
+        </div>
+        <div class="month-card">
+          <div class="month-card-title">Feb</div>
+          <div class="month-stat"><span class="month-stat-label">Tickets</span><span class="month-stat-value">229</span></div>
+          <div class="month-stat"><span class="month-stat-label">Opened</span><span class="month-stat-value blue">81</span></div>
+          <div class="month-stat"><span class="month-stat-label">Won</span><span class="month-stat-value green">40 · 49.4%</span></div>
+          <div class="month-stat"><span class="month-stat-label">In progress</span><span class="month-stat-value amber">32</span></div>
+        </div>
+      </div>
+
+      <div class="charts2">
+        <div class="card">
+          <div class="card-title">Monthly dispute outcomes — case count</div>
+          <div class="legend">
+            <span class="leg"><span class="dot" style="background:#3a7a62"></span>Won</span>
+            <span class="leg"><span class="dot" style="background:#6b9dc2"></span>Merchant refund</span>
+            <span class="leg"><span class="dot" style="background:#a87d30"></span>Stopped</span>
+            <span class="leg"><span class="dot" style="background:#8b3535"></span>Lost</span>
+            <span class="leg"><span class="dot" style="background:#c8e2da"></span>In progress</span>
+          </div>
+          <div style="position:relative;width:100%;height:220px;"><canvas id="bar1"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Win / merchant refund / loss rate</div>
+          <div style="position:relative;width:100%;height:220px;"><canvas id="line1"></canvas></div>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>April is the reporting month</strong> — Feb & March shown for trend context. All rates calculated over disputes actually opened, not total tickets.
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SECTION 2: Credits & Financial Loss -->
+    <div class="section">
+      <div class="section-label">Section 2 · Temporary credit & financial loss</div>
+      
+      <div class="metrics4">
+        <div class="metric">
+          <div class="metric-label">Credits issued</div>
+          <div class="metric-value blue">108 <span style="font-size:13px;font-weight:400">· 20.8%</span></div>
+          <div class="metric-usd blue">$27,831</div>
+          <div class="metric-sub">April</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Recovered (won)</div>
+          <div class="metric-value green">0.0%</div>
+          <div class="metric-usd green">$0</div>
+          <div class="metric-sub">April · no wins yet</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Temp. to be recovered</div>
+          <div class="metric-value amber">99.4%</div>
+          <div class="metric-usd amber">$27,654</div>
+          <div class="metric-sub">outcome pending</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Confirmed financial loss</div>
+          <div class="metric-value red">11.1% · 12</div>
+          <div class="metric-usd red">$176</div>
+          <div class="metric-sub">April losses</div>
+        </div>
+      </div>
+
+      <div class="charts2">
+        <div class="card">
+          <div class="card-title">Monthly — credit destination (USD)</div>
+          <div class="legend">
+            <span class="leg"><span class="dot" style="background:#3a7a62"></span>Recovered</span>
+            <span class="leg"><span class="dot" style="background:#c8e2da"></span>Temp. to recover</span>
+            <span class="leg"><span class="dot" style="background:#8b3535"></span>Financial loss</span>
+          </div>
+          <div style="position:relative;width:100%;height:220px;"><canvas id="bar2"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Financial loss rate % of credits</div>
+          <div style="position:relative;width:100%;height:220px;"><canvas id="line2"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">Disputes Report · April 2026 · Disputes Operations</div>
+  </div>
+</div>
+
+<script>
+  // ────────────────────────────────────────────────────────────
+  // OAUTH Configuration
+  // ────────────────────────────────────────────────────────────
+  const CLIENT_ID = '656061869373-86k86bjffu87bu6pfbiqipf7t6ekv858.apps.googleusercontent.com';
+  const ALLOWED_DOMAIN = '@tryjeeves.com';
+
+  function handleCredentialResponse(response) {
+    const token = response.credential;
+    if (!token) {
+      showError('Unable to decode token. Please try again.');
+      return;
+    }
+
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      const decoded = JSON.parse(jsonPayload);
+
+      const email = decoded.email;
+      if (!email || !email.endsWith(ALLOWED_DOMAIN)) {
+        showError(`Access denied. Only ${ALLOWED_DOMAIN} accounts are allowed.`);
+        return;
+      }
+
+      sessionStorage.setItem('authToken', token);
+      sessionStorage.setItem('userEmail', email);
+      showReport();
+    } catch (err) {
+      showError('Invalid token format. Please try again.');
+    }
+  }
+
+  function checkExistingAuth() {
+    const authToken = sessionStorage.getItem('authToken');
+    const userEmail = sessionStorage.getItem('userEmail');
+
+    if (authToken && userEmail && userEmail.endsWith(ALLOWED_DOMAIN)) {
+      showReport();
+    } else {
+      showLogin();
+    }
+  }
+
+  function initGoogleSignIn() {
+    if (!window.google || !window.google.accounts) {
+      console.warn('Google Sign-In library not loaded');
+      return;
+    }
+
+    google.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback: handleCredentialResponse,
+      ux_mode: 'popup'
+    });
+
+    const renderContainer = document.getElementById('g_id_render');
+    if (renderContainer) {
+      google.accounts.id.renderButton(renderContainer, { 
+        theme: 'outline', 
+        size: 'large',
+        text: 'signin_with',
+        width: '300'
+      });
+    }
+  }
+
+  function showLogin() {
+    document.body.classList.remove('report-mode');
+    document.body.classList.add('login-mode');
+  }
+
+  function showReport() {
+    document.body.classList.remove('login-mode');
+    document.body.classList.add('report-mode');
+    setTimeout(initCharts, 100);
+  }
+
+  function showError(msg) {
+    const errorDiv = document.getElementById('login-error');
+    errorDiv.textContent = msg;
+    errorDiv.classList.add('show');
+  }
+
+  function logout() {
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('userEmail');
+    if (window.google && window.google.accounts) {
+      google.accounts.id.disableAutoSelect();
+    }
+    showLogin();
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // Charts initialization
+  // ────────────────────────────────────────────────────────────
+  function initCharts() {
+    const months = ['Feb', 'March', 'April'];
+    const D = [
+      { won: 40, ref: 7, stop: 1, lost: 1, prog: 32, wonCusd: 25941, progCusd: 991, finLusd: 158 },
+      { won: 41, ref: 25, stop: 2, lost: 0, prog: 145, wonCusd: 23917, progCusd: 26606, finLusd: 478 },
+      { won: 0, ref: 47, stop: 2, lost: 0, prog: 125, wonCusd: 0, progCusd: 27654, finLusd: 176 }
+    ];
+
+    const OPTS = { responsive: true, maintainAspectRatio: false };
+    const gridY = { color: 'rgba(0,0,0,0.05)' };
+    const tickSm = { font: { size: 10 } };
+
+    // Bar 1 — Dispute outcomes
+    const bar1El = document.getElementById('bar1');
+    if (bar1El) {
+      new Chart(bar1El, {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [
+            { label: 'Won', data: D.map(d => d.won), backgroundColor: '#3a7a62', stack: 's' },
+            { label: 'Merchant refund', data: D.map(d => d.ref), backgroundColor: '#6b9dc2', stack: 's' },
+            { label: 'Stopped', data: D.map(d => d.stop), backgroundColor: '#a87d30', stack: 's' },
+            { label: 'Lost', data: D.map(d => d.lost), backgroundColor: '#8b3535', stack: 's' },
+            { label: 'In progress', data: D.map(d => d.prog), backgroundColor: '#c8e2da', stack: 's' }
+          ]
+        },
+        options: {
+          ...OPTS,
+          plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+          scales: {
+            x: { stacked: true, ticks: { ...tickSm, autoSkip: false }, grid: { display: false } },
+            y: { stacked: true, ticks: tickSm, grid: gridY }
+          }
+        }
+      });
+    }
+
+    // Line 1 — Rates trend
+    const line1El = document.getElementById('line1');
+    if (line1El) {
+      new Chart(line1El, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [
+            {
+              label: 'Win rate',
+              data: [49.4, 19.2, 0],
+              borderColor: '#3a7a62',
+              backgroundColor: 'rgba(58,122,98,0.08)',
+              tension: 0.3,
+              pointRadius: 4,
+              fill: true
+            },
+            {
+              label: 'Merchant refund rate',
+              data: [8.6, 11.7, 27.0],
+              borderColor: '#6b9dc2',
+              tension: 0.3,
+              pointRadius: 4
+            },
+            {
+              label: 'Loss rate',
+              data: [1.2, 0, 0],
+              borderColor: '#8b3535',
+              tension: 0.3,
+              pointRadius: 4
+            }
+          ]
+        },
+        options: {
+          ...OPTS,
+          plugins: {
+            legend: { display: true, position: 'bottom', labels: { font: { size: 10 }, padding: 8 } }
+          },
+          scales: {
+            x: { ticks: { ...tickSm, autoSkip: false }, grid: { display: false } },
+            y: { ticks: { ...tickSm, callback: v => v + '%' }, grid: gridY, min: 0, max: 100 }
+          }
+        }
+      });
+    }
+
+    // Bar 2 — Credit destination
+    const bar2El = document.getElementById('bar2');
+    if (bar2El) {
+      new Chart(bar2El, {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [
+            { label: 'Recovered', data: D.map(d => d.wonCusd), backgroundColor: '#3a7a62', stack: 's' },
+            { label: 'Temp. to recover', data: D.map(d => d.progCusd), backgroundColor: '#c8e2da', stack: 's' },
+            { label: 'Financial loss', data: D.map(d => d.finLusd), backgroundColor: '#8b3535', stack: 's' }
+          ]
+        },
+        options: {
+          ...OPTS,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              callbacks: { label: ctx => ' ' + ctx.dataset.label + ': $' + ctx.raw.toLocaleString() }
+            }
+          },
+          scales: {
+            x: { stacked: true, ticks: { ...tickSm, autoSkip: false }, grid: { display: false } },
+            y: { stacked: true, ticks: { ...tickSm, callback: v => '$' + (v / 1000).toFixed(0) + 'k' }, grid: gridY }
+          }
+        }
+      });
+    }
+
+    // Line 2 — Loss rate %
+    const line2El = document.getElementById('line2');
+    if (line2El) {
+      new Chart(line2El, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [
+            {
+              label: 'Loss rate %',
+              data: [9.4, 3.8, 11.1],
+              borderColor: '#8b3535',
+              backgroundColor: 'rgba(139,53,53,0.08)',
+              tension: 0.3,
+              pointRadius: 4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          ...OPTS,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { ...tickSm, autoSkip: false }, grid: { display: false } },
+            y: { ticks: { ...tickSm, callback: v => v + '%' }, grid: gridY, min: 0 }
+          }
+        }
+      });
+    }
+  }
+
+  // Init on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    checkExistingAuth();
+    initGoogleSignIn();
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      checkExistingAuth();
+      initGoogleSignIn();
+    });
+  } else {
+    checkExistingAuth();
+    initGoogleSignIn();
+  }
+</script>
 </body>
 </html>
