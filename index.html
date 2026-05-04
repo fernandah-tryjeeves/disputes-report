@@ -4,18 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Disputes Report — April 2026</title>
-<!-- GOOGLE SIGN-IN SDK — MUST LOAD FIRST -->
 <script async defer src="https://accounts.google.com/gsi/client"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  /* ────────────────────────────────────────────────────────────
-     RESET & BASE
-     ──────────────────────────────────────────────────────────── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ────────────────────────────────────────────────────────────
-     DESIGN TOKENS
-     ──────────────────────────────────────────────────────────── */
   :root {
     --ink:          #1a1a18;
     --ink-mid:      #5f5e5a;
@@ -25,20 +18,19 @@
     --bg-card:      #ffffff;
     --bg-muted:     #f2f1ed;
     --border:       #e2e0d8;
+    --border-light: #eceae4;
     --accent:       #1a3d6b;
     --accent-mid:   #2d5a8e;
-    --accent-alt:   #0f6e56;
+    --accent-bg:    #f0f4f9;
     --pos:          #1a5c45;
     --neg:          #5c1f1f;
     --warn:         #5c3d00;
   }
 
-  /* ────────────────────────────────────────────────────────────
-     LOGIN SCREEN
-     ──────────────────────────────────────────────────────────── */
+  /* LOGIN SCREEN */
   body.login-mode {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-alt) 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, #0f6e56 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -46,197 +38,156 @@
     margin: 0;
     padding: 20px;
   }
-
-  #login-screen {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  #login-screen { display: none; }
+  #report-screen { display: none; }
+  body.login-mode #login-screen { display: flex; align-items: center; justify-content: center; width: 100%; }
+  body.login-mode #report-screen { display: none; }
+  body.report-mode #login-screen { display: none; }
+  body.report-mode #report-screen { display: block; }
 
   .login-container {
     background: var(--bg-card);
     border-radius: 16px;
     padding: 48px 56px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     max-width: 420px;
     width: 100%;
     text-align: center;
   }
+  .login-icon { font-size: 4.5em; margin-bottom: 24px; display: block; }
+  .login-title { font-size: 26px; font-weight: 700; color: var(--ink); margin-bottom: 8px; letter-spacing: -0.3px; }
+  .login-subtitle { font-size: 13px; color: var(--ink-light); line-height: 1.7; margin-bottom: 32px; }
+  .login-divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  #g_id_render { display: flex; justify-content: center; margin: 0 0 28px 0; min-height: 50px; }
+  .login-footer { font-size: 12px; color: var(--ink-light); line-height: 1.6; margin-top: 20px; }
+  .login-error { color: var(--neg); background: #fff5f5; border: 1px solid #f5d4d4; padding: 14px 16px; border-radius: 8px; margin-bottom: 24px; font-size: 12px; line-height: 1.6; display: none; }
+  .login-error.show { display: block; }
 
-  .login-icon {
-    font-size: 4.5em;
-    margin-bottom: 24px;
-    display: block;
-  }
-
-  .login-title {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: 8px;
-    letter-spacing: -0.3px;
-  }
-
-  .login-subtitle {
-    font-size: 13px;
-    color: var(--ink-light);
-    line-height: 1.7;
-    margin-bottom: 32px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-
-  .login-divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 32px 0;
-  }
-
-  /* ────────────────────────────────────────────────────────────
-     GOOGLE SIGN-IN BUTTON WRAPPER
-     ──────────────────────────────────────────────────────────── */
-  #g_id_render {
-    display: flex;
-    justify-content: center;
-    margin: 0 0 28px 0;
-    min-height: 50px;
-  }
-
-  .login-footer {
-    font-size: 12px;
-    color: var(--ink-light);
-    line-height: 1.6;
-    margin-top: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-
-  .login-error {
-    color: var(--neg);
-    background: #fff5f5;
-    border: 1px solid #f5d4d4;
-    padding: 14px 16px;
-    border-radius: 8px;
-    margin-bottom: 24px;
-    font-size: 12px;
-    line-height: 1.6;
-    display: none;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-
-  .login-error.show {
-    display: block;
-  }
-
-  /* ────────────────────────────────────────────────────────────
-     REPORT SCREEN (hidden by default)
-     ──────────────────────────────────────────────────────────── */
+  /* REPORT SCREEN */
   body.report-mode {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
     background: var(--bg);
     color: var(--ink);
     font-size: 14px;
     line-height: 1.6;
-    margin: 0;
-    padding: 0;
   }
+  .logout-btn { position: fixed; top: 20px; right: 20px; background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; z-index: 1000; transition: background 0.15s; }
+  .logout-btn:hover { background: #0f6e56; }
 
-  #login-screen { display: none; }
-  #report-screen { display: none; }
-
-  body.login-mode #login-screen { display: flex; }
-  body.login-mode #report-screen { display: none; }
-  body.report-mode #login-screen { display: none; }
-  body.report-mode #report-screen { display: block; }
-
-  /* ────────────────────────────────────────────────────────────
-     REPORT LAYOUT & COMPONENTS
-     ──────────────────────────────────────────────────────────── */
-  .page { max-width: 1320px; margin: 0 auto; padding: 48px 48px; position: relative; }
-
-  .logout-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    z-index: 1000;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    transition: background 0.15s ease;
+  /* Reports dropdown */
+  .reports-nav { position: fixed; top: 20px; right: 110px; z-index: 1000; }
+  .reports-btn { background: var(--bg-card); color: var(--ink); border: 1px solid var(--border); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+  .reports-btn:hover { background: var(--bg-muted); border-color: var(--accent-mid); }
+  .reports-btn .chev { font-size: 9px; opacity: 0.7; transition: transform 0.15s; }
+  .reports-btn.open .chev { transform: rotate(180deg); }
+  .reports-menu { position: absolute; top: calc(100% + 6px); right: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); min-width: 220px; max-height: 360px; overflow-y: auto; display: none; }
+  .reports-menu.open { display: block; }
+  .reports-menu-header { font-size: 10px; color: var(--ink-light); padding: 10px 14px 6px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .reports-menu a { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; color: var(--ink); text-decoration: none; font-size: 12px; border-top: 1px solid var(--border-light); transition: background 0.1s; }
+  .reports-menu a:hover { background: var(--bg-muted); }
+  .reports-menu a.current { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+  .reports-menu a .badge { font-size: 9px; background: var(--accent); color: #fff; padding: 2px 6px; border-radius: 3px; font-weight: 600; letter-spacing: 0.04em; }
+  .reports-menu .empty { padding: 12px 14px; font-size: 11px; color: var(--ink-light); font-style: italic; }
+  @media (max-width: 768px) {
+    .reports-nav { right: 90px; }
+    .reports-btn { padding: 6px 10px; font-size: 11px; }
   }
-
-  .logout-btn:hover {
-    background: var(--accent-alt);
-  }
-
+  .page { max-width: 1320px; margin: 0 auto; padding: 48px 48px; }
   .header { margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
   .header-left h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
   .header-left p { font-size: 13px; color: var(--ink-light); }
   .header-right { font-size: 12px; color: var(--ink-faint); text-align: right; }
-
+  .highlight-badge { display: inline-block; background: var(--accent); color: #fff; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 4px; margin-left: 10px; vertical-align: middle; }
   .section { margin-bottom: 48px; }
   .section-label { font-size: 10px; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-
   .metrics4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-bottom: 16px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .metrics3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-bottom: 16px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
   .metric { background: var(--bg-card); padding: 18px 20px; }
+  .metric.highlight { background: var(--accent-bg); border-left: 2px solid var(--accent-mid); }
   .metric-label { font-size: 11px; color: var(--ink-light); margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
   .metric-value { font-size: 24px; font-weight: 700; line-height: 1.05; }
   .metric-usd { font-size: 12px; font-weight: 600; margin-top: 3px; }
   .metric-sub { font-size: 11px; color: var(--ink-light); margin-top: 4px; line-height: 1.4; }
-
   .green { color: var(--pos); } .red { color: var(--neg); } .blue { color: var(--accent); } .amber { color: var(--warn); } .gray { color: var(--ink-mid); }
-
-  .charts2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .charts2   { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .charts2eq { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .charts3   { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
   .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
   .card-title { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
-
   .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
   .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ink-light); }
   .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
   table { width: 100%; border-collapse: collapse; font-size: 11px; }
   thead th { font-size: 10px; color: var(--ink-light); font-weight: 600; text-align: right; padding: 8px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; background: var(--bg-muted); text-transform: uppercase; letter-spacing: 0.05em; }
   thead th:first-child { text-align: left; }
-  tbody td { padding: 7px 6px; text-align: right; border-bottom: 0.5px solid #f0efeb; white-space: nowrap; }
+  tbody td { padding: 7px 6px; text-align: right; border-bottom: 0.5px solid var(--border-light); white-space: nowrap; color: var(--ink); }
   tbody td:first-child { text-align: left; font-weight: 600; }
+  tbody td.left { text-align: left; font-weight: 400; }
   tbody tr:hover td { background: var(--bg-muted); }
   tbody tr.total-row td { font-weight: 700; background: var(--bg-muted); border-top: 1px solid var(--border); border-bottom: none; }
-
   .note { font-size: 11px; color: var(--ink-light); padding: 12px 16px; background: var(--bg-muted); border-radius: 6px; border-left: 2px solid var(--border); line-height: 1.7; margin-top: 14px; }
-
   .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
   .footer { text-align: center; font-size: 11px; color: var(--ink-faint); margin-top: 40px; padding-top: 20px; border-top: 0.5px solid var(--border); }
-
   .month-compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
   .month-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
-  .month-card.highlight { border: 1.5px solid var(--accent-mid); background: linear-gradient(135deg, rgba(26,61,107,0.04) 0%, rgba(15,110,86,0.02) 100%); }
-  .month-card-title { font-size: 11px; font-weight: 700; color: var(--ink-mid); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
-  .month-stat { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 0.5px solid #f0efeb; }
+  .month-card.highlight { border: 1.5px solid var(--accent-mid); background: var(--accent-bg); }
+  .month-card-title { font-size: 11px; font-weight: 700; color: var(--ink-mid); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .month-card-title .badge { background: var(--accent); color: #fff; font-size: 8px; padding: 2px 6px; border-radius: 3px; font-weight: 600; letter-spacing: 0.06em; }
+  .month-stat { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 0.5px solid var(--border-light); }
   .month-stat:last-child { border-bottom: none; }
   .month-stat-label { color: var(--ink-light); }
   .month-stat-value { font-weight: 600; color: var(--ink); }
   .month-stat-value.green { color: var(--pos); }
-  .month-stat-value.blue { color: var(--accent); }
+  .month-stat-value.blue  { color: var(--accent-mid); }
   .month-stat-value.amber { color: var(--warn); }
-
+  .month-stat-value.red   { color: var(--neg); }
+  .month-stat-value.gray  { color: var(--ink-mid); }
+  .ai-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 22px 26px; margin-bottom: 16px; position: relative; overflow: hidden; }
+  .ai-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
+  .ai-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .ai-card-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; flex-shrink: 0; }
+  .ai-card-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .ai-card-subtitle { font-size: 11px; color: var(--ink-light); }
+  .ai-body { font-size: 13px; color: var(--ink); line-height: 1.8; }
+  .ai-body p { margin-bottom: 10px; }
+  .ai-body p:last-child { margin-bottom: 0; }
+  .tooltip-wrap { display: inline-block; position: relative; cursor: help; border-bottom: 1px dashed var(--ink-faint); }
+  .tooltip-wrap .tooltip-box { visibility: hidden; opacity: 0; transition: opacity 0.15s; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 11px; line-height: 1.5; padding: 8px 12px; border-radius: 6px; white-space: normal; width: max-content; max-width: 240px; z-index: 100; pointer-events: none; }
+  .tooltip-wrap .tooltip-box::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--ink); }
+  .tooltip-wrap:hover .tooltip-box { visibility: visible; opacity: 1; }
+  .lifecycle { display: flex; align-items: flex-start; gap: 0; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
+  .lifecycle-step { flex: 1; min-width: 120px; position: relative; }
+  .lifecycle-step::before { content: ''; position: absolute; top: 18px; left: 50%; width: 100%; height: 1px; background: var(--border); z-index: 0; }
+  .lifecycle-step:last-child::before { display: none; }
+  .lifecycle-dot { width: 36px; height: 36px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; position: relative; z-index: 1; }
+  .lifecycle-label { font-size: 10px; font-weight: 600; text-align: center; color: var(--ink); margin-bottom: 3px; }
+  .lifecycle-sub { font-size: 10px; text-align: center; color: var(--ink-light); line-height: 1.4; }
+  .lifecycle-time { font-size: 9px; text-align: center; color: #b4b2a9; margin-top: 3px; font-style: italic; }
+  .glossary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .glossary-item { background: #faf9f7; border: 0.5px solid #e0dfd8; border-radius: 8px; padding: 12px 14px; }
+  .glossary-term { font-size: 11px; font-weight: 700; color: #0c447c; margin-bottom: 4px; }
+  .glossary-def { font-size: 11px; color: #5f5e5a; line-height: 1.5; }
   @media (max-width: 768px) {
     .page { padding: 20px 16px; }
-    .logout-btn { padding: 6px 12px; font-size: 11px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .header-right { text-align: left; }
     .metrics4 { grid-template-columns: repeat(2, 1fr); }
-    .charts2 { grid-template-columns: 1fr; }
+    .metrics3 { grid-template-columns: 1fr; }
+    .charts2, .charts2eq, .charts3 { grid-template-columns: 1fr; }
+    .month-compare { grid-template-columns: 1fr; }
+    .metric-value { font-size: 20px; }
+    .glossary-grid { grid-template-columns: 1fr; }
+    .logout-btn { padding: 6px 12px; font-size: 11px; }
+  }
+  @media (max-width: 480px) {
+    .metrics4 { grid-template-columns: 1fr; }
+    .metric { padding: 14px 16px; }
   }
 </style>
 </head>
 <body class="login-mode">
 
-<!-- ═══════════════════════════════════════════════════════════
-     LOGIN SCREEN
-     ═══════════════════════════════════════════════════════════ -->
+<!-- LOGIN SCREEN -->
 <div id="login-screen">
   <div class="login-container">
     <span class="login-icon">🔐</span>
@@ -249,160 +200,212 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     REPORT SCREEN
-     ═══════════════════════════════════════════════════════════ -->
+<!-- REPORT SCREEN -->
 <div id="report-screen">
+  <div class="reports-nav">
+    <button class="reports-btn" id="reports-btn" onclick="toggleReportsMenu()">
+      <span>📅 Reports</span>
+      <span class="chev">▼</span>
+    </button>
+    <div class="reports-menu" id="reports-menu">
+      <div class="reports-menu-header">All monthly reports</div>
+      <div id="reports-list"><div class="empty">Loading…</div></div>
+    </div>
+  </div>
   <button class="logout-btn" onclick="logout()">Sign out</button>
-  
   <div class="page">
     <div class="header">
       <div class="header-left">
-        <h1>Disputes Report · April 2026</h1>
-        <p>Monthly report · Feb & March shown as trend reference</p>
+        <h1>Disputes Report <span class="highlight-badge">April 2026 · reporting month</span></h1>
+        <p>April 2026 · Monthly report · Feb &amp; March as trend context</p>
       </div>
-      <div class="header-right">Generated May 2026<br>Disputes Operations</div>
+      <div class="header-right">Generated May 2026<br>Disputes Operations · Monthly Report</div>
     </div>
 
-    <!-- SECTION 1: Dispute Outcomes -->
-    <div class="section">
-      <div class="section-label">Section 1 · Dispute outcomes — April (reporting month)</div>
-      
-      <div class="metrics4">
-        <div class="metric">
-          <div class="metric-label">Total tickets</div>
-          <div class="metric-value blue">520</div>
-          <div class="metric-sub">April</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Disputes opened</div>
-          <div class="metric-value blue">174 <span style="font-size:13px;font-weight:400">· 33.5%</span></div>
-          <div class="metric-sub">April</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">In progress</div>
-          <div class="metric-value amber">125 <span style="font-size:13px;font-weight:400">· 71.8%</span></div>
-          <div class="metric-sub">2nd presentment / evidence</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Win rate</div>
-          <div class="metric-value green">0.0%</div>
-          <div class="metric-sub">0 disputes won</div>
+    <!-- AI ANALYSIS -->
+    <div class="ai-card" id="ai-card">
+      <div class="ai-card-header">
+        <div class="ai-card-icon">✦</div>
+        <div>
+          <div class="ai-card-title">AI Analysis — April 2026</div>
+          <div class="ai-card-subtitle">Feb &amp; March shown as trend reference</div>
         </div>
       </div>
-
-      <div class="metrics4">
-        <div class="metric">
-          <div class="metric-label">Merchant refund rate</div>
-          <div class="metric-value blue">27.0%</div>
-          <div class="metric-usd blue">$2,746</div>
-          <div class="metric-sub">47 refunds · April</div>
+      <div class="ai-body" id="ai-body">
+        <p style="font-size:13px;color:#1a1a18;line-height:1.75;margin:0 0 16px">April had 174 disputes opened, down from 213 in March.</p>
+        <div style="margin-bottom:16px">
+          <div style="margin-bottom:8px">
+            <button onclick="(function(btn){var d=document.getElementById('ai-detail-0');var open=d.style.display==='block';d.style.display=open?'none':'block';btn.style.borderBottomLeftRadius=open?'6px':'0';btn.style.borderBottomRightRadius=open?'6px':'0';})(this)" style="display:inline-flex;align-items:center;gap:8px;background:#f2f1ed;color:#4a4a47;border:1px solid #d8d6cf;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:500;line-height:1.3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;text-align:left;width:auto">174 disputes opened<span style="font-size:10px;opacity:0.6">▾ click for analysis</span></button>
+            <div id="ai-detail-0" style="display:none;background:#f7f6f3;border:1px solid #d8d6cf;border-top:none;border-radius:0 0 6px 6px;padding:12px 16px;font-size:12px;color:#4a4a47;line-height:1.75;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:480px">We formally opened 174 disputes in April, representing 33.5% of all tickets. This is a decrease from 213 disputes opened in March. In February, only 81 disputes were opened.</div>
+          </div>
+          <div style="margin-bottom:8px">
+            <button onclick="(function(btn){var d=document.getElementById('ai-detail-1');var open=d.style.display==='block';d.style.display=open?'none':'block';btn.style.borderBottomLeftRadius=open?'6px':'0';btn.style.borderBottomRightRadius=open?'6px':'0';})(this)" style="display:inline-flex;align-items:center;gap:8px;background:#faf5ec;color:#5c3d00;border:1px solid #d9c99a;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:500;line-height:1.3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;text-align:left;width:auto">71.8% in progress<span style="font-size:10px;opacity:0.6">▾ click for analysis</span></button>
+            <div id="ai-detail-1" style="display:none;background:#fdf9f2;border:1px solid #d9c99a;border-top:none;border-radius:0 0 6px 6px;padding:12px 16px;font-size:12px;color:#5c3d00;line-height:1.75;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:480px">71.8% of disputes opened in April are currently in progress. This means the outcomes are still pending, and is a normal part of the dispute lifecycle. Network resolution can take 45-120 days.</div>
+          </div>
+          <div style="margin-bottom:8px">
+            <button onclick="(function(btn){var d=document.getElementById('ai-detail-2');var open=d.style.display==='block';d.style.display=open?'none':'block';btn.style.borderBottomLeftRadius=open?'6px':'0';btn.style.borderBottomRightRadius=open?'6px':'0';})(this)" style="display:inline-flex;align-items:center;gap:8px;background:#faf5ec;color:#5c3d00;border:1px solid #d9c99a;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:500;line-height:1.3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;text-align:left;width:auto">$27,654 credits to be recovered<span style="font-size:10px;opacity:0.6">▾ click for analysis</span></button>
+            <div id="ai-detail-2" style="display:none;background:#fdf9f2;border:1px solid #d9c99a;border-top:none;border-radius:0 0 6px 6px;padding:12px 16px;font-size:12px;color:#5c3d00;line-height:1.75;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:480px">$27,654 in credits issued are currently at risk pending dispute outcomes. This is 99.4% of the $27,831 in credits issued for April. These credits may be recovered if we win the disputes, or become confirmed losses if we lose.</div>
+          </div>
         </div>
-        <div class="metric">
-          <div class="metric-label">Loss rate</div>
+        <div style="font-size:12px;color:#5c3d00;background:#faf5ec;border-left:2px solid #c4a35a;padding:10px 14px;border-radius:0 6px 6px 0;line-height:1.6;font-family:-apple-system,sans-serif"><strong>Watch:</strong> Monitor the progress of the 125 in-progress disputes from April over the next 1-2 months to assess potential losses.</div>
+      </div>
+    </div>
+
+    <!-- SECTION 1 -->
+    <div class="section">
+      <div class="section-label">Section 1 · Dispute outcomes — Feb, March &amp; April · April is reporting month</div>
+      <div style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px">April · reporting month snapshot</div>
+      <div class="metrics4">
+        <div class="metric highlight">
+          <div class="metric-label">Total tickets</div>
+          <div class="metric-value blue">520</div>
+          <div class="metric-sub">April only</div>
+        </div>
+        <div class="metric highlight">
+          <div class="metric-label"><span class="tooltip-wrap">Disputes opened<span class="tooltip-box">Cases where a formal chargeback was filed with the card network. Excludes tickets closed without action (no response, below $15, not eligible).</span></span></div>
+          <div class="metric-value blue">174 <span style="font-size:13px;font-weight:400">· 33.5%</span></div>
+          <div class="metric-sub">April only</div>
+        </div>
+        <div class="metric highlight">
+          <div class="metric-label"><span class="tooltip-wrap">In progress<span class="tooltip-box">Disputes awaiting network response: Evidence Submitted, 2nd Presentment, or Pre-Arbitration stage. Outcome still pending.</span></span></div>
+          <div class="metric-value amber">71.8%</div>
+          <div class="metric-sub">125 cases · April only</div>
+        </div>
+        <div class="metric highlight">
+          <div class="metric-label">Not eligible</div>
+          <div class="metric-value gray">29 <span style="font-size:13px;font-weight:400">· 5.6%</span></div>
+          <div class="metric-sub">April only</div>
+        </div>
+      </div>
+      <div class="metrics4">
+        <div class="metric highlight">
+          <div class="metric-label"><span class="tooltip-wrap">Win rate<span class="tooltip-box">% of opened disputes won via card network (1st or 2nd presentment). Calculated over disputes opened — excludes tickets closed without filing.</span></span></div>
+          <div class="metric-value green">0.0%</div>
+          <div class="metric-usd green">$0 recovered</div>
+          <div class="metric-sub">0 disputes won · April</div>
+        </div>
+        <div class="metric highlight">
+          <div class="metric-label"><span class="tooltip-wrap">Merchant refund rate<span class="tooltip-box">% of opened disputes where the merchant voluntarily returned funds. Does not require network ruling — faster resolution.</span></span></div>
+          <div class="metric-value blue">27.0%</div>
+          <div class="metric-usd blue">$2,746 recovered</div>
+          <div class="metric-sub">47 merchant refunds · April</div>
+        </div>
+        <div class="metric highlight">
+          <div class="metric-label"><span class="tooltip-wrap">Loss rate<span class="tooltip-box">% of opened disputes rejected by the card network after filing. These represent confirmed financial losses where recovery was not possible.</span></span></div>
           <div class="metric-value red">0.0%</div>
           <div class="metric-usd red">$0 lost</div>
           <div class="metric-sub">0 rejected · April</div>
         </div>
-        <div class="metric">
+        <div class="metric highlight">
           <div class="metric-label">Chargeback BPS</div>
           <div class="metric-value green">0.28 bps</div>
           <div class="metric-sub">April · Tutuka processors</div>
         </div>
-        <div class="metric">
-          <div class="metric-label">Credits issued</div>
-          <div class="metric-value blue">108 <span style="font-size:13px;font-weight:400">· 20.8%</span></div>
-          <div class="metric-usd blue">$27,831</div>
-        </div>
       </div>
-
+      <div style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px;margin-top:6px">Feb, March &amp; April — month-by-month comparison</div>
+      <div class="note" style="border-left-color:#633806;background:#fef6e4;color:#633806;margin-bottom:14px">
+        ⚠ <strong>High volume of cases in progress (71.8% of April opened disputes).</strong> Win rate will update as the card network responds to Evidence Submitted and 2nd Presentment cases — typically within 45–120 days. Final win rate for April 2026 is expected to be higher once these cases resolve.
+      </div>
       <div class="month-compare">
         <div class="month-card highlight">
-          <div class="month-card-title">April (reporting)</div>
-          <div class="month-stat"><span class="month-stat-label">Tickets</span><span class="month-stat-value">520</span></div>
-          <div class="month-stat"><span class="month-stat-label">Opened</span><span class="month-stat-value blue">174</span></div>
-          <div class="month-stat"><span class="month-stat-label">In progress</span><span class="month-stat-value amber">125</span></div>
+          <div class="month-card-title">April <span class="badge">REPORTING MONTH</span></div>
+          <div class="month-stat"><span class="month-stat-label">Total tickets</span><span class="month-stat-value">520</span></div>
+          <div class="month-stat"><span class="month-stat-label">Won</span><span class="month-stat-value green">0 · 0.0%</span></div>
           <div class="month-stat"><span class="month-stat-label">Merchant refund</span><span class="month-stat-value blue">47 · 27.0%</span></div>
+          <div class="month-stat"><span class="month-stat-label">In progress</span><span class="month-stat-value amber">125 · 71.8%</span></div>
+          <div class="month-stat"><span class="month-stat-label">Lost</span><span class="month-stat-value red">0 · 0.0%</span></div>
+          <div class="month-stat"><span class="month-stat-label">Closed w/o dispute</span><span class="month-stat-value gray">346 · 66.5%</span></div>
+          <div class="month-stat"><span class="month-stat-label">Credits issued</span><span class="month-stat-value">108 · $27,831</span></div>
+          <div class="month-stat"><span class="month-stat-label">↳ Temp. to be recovered</span><span class="month-stat-value amber">$27,654</span></div>
+          <div class="month-stat"><span class="month-stat-label">↳ Confirmed loss</span><span class="month-stat-value red">$176</span></div>
         </div>
         <div class="month-card">
           <div class="month-card-title">March</div>
-          <div class="month-stat"><span class="month-stat-label">Tickets</span><span class="month-stat-value">518</span></div>
-          <div class="month-stat"><span class="month-stat-label">Opened</span><span class="month-stat-value blue">213</span></div>
+          <div class="month-stat"><span class="month-stat-label">Total tickets</span><span class="month-stat-value">518</span></div>
           <div class="month-stat"><span class="month-stat-label">Won</span><span class="month-stat-value green">41 · 19.2%</span></div>
-          <div class="month-stat"><span class="month-stat-label">In progress</span><span class="month-stat-value amber">145</span></div>
+          <div class="month-stat"><span class="month-stat-label">Merchant refund</span><span class="month-stat-value blue">25 · 11.7%</span></div>
+          <div class="month-stat"><span class="month-stat-label">In progress</span><span class="month-stat-value amber">145 · 68.1%</span></div>
+          <div class="month-stat"><span class="month-stat-label">Lost</span><span class="month-stat-value red">0 · 0.0%</span></div>
+          <div class="month-stat"><span class="month-stat-label">Closed w/o dispute</span><span class="month-stat-value gray">305 · 58.9%</span></div>
+          <div class="month-stat"><span class="month-stat-label">Credits issued</span><span class="month-stat-value">184 · $51,001</span></div>
+          <div class="month-stat"><span class="month-stat-label">↳ Temp. to be recovered</span><span class="month-stat-value amber">$26,606</span></div>
+          <div class="month-stat"><span class="month-stat-label">↳ Confirmed loss</span><span class="month-stat-value red">$478</span></div>
         </div>
         <div class="month-card">
           <div class="month-card-title">Feb</div>
-          <div class="month-stat"><span class="month-stat-label">Tickets</span><span class="month-stat-value">229</span></div>
-          <div class="month-stat"><span class="month-stat-label">Opened</span><span class="month-stat-value blue">81</span></div>
+          <div class="month-stat"><span class="month-stat-label">Total tickets</span><span class="month-stat-value">229</span></div>
           <div class="month-stat"><span class="month-stat-label">Won</span><span class="month-stat-value green">40 · 49.4%</span></div>
-          <div class="month-stat"><span class="month-stat-label">In progress</span><span class="month-stat-value amber">32</span></div>
+          <div class="month-stat"><span class="month-stat-label">Merchant refund</span><span class="month-stat-value blue">7 · 8.6%</span></div>
+          <div class="month-stat"><span class="month-stat-label">In progress</span><span class="month-stat-value amber">32 · 39.5%</span></div>
+          <div class="month-stat"><span class="month-stat-label">Lost</span><span class="month-stat-value red">1 · 1.2%</span></div>
+          <div class="month-stat"><span class="month-stat-label">Closed w/o dispute</span><span class="month-stat-value gray">148 · 64.6%</span></div>
+          <div class="month-stat"><span class="month-stat-label">Credits issued</span><span class="month-stat-value">53 · $27,091</span></div>
+          <div class="month-stat"><span class="month-stat-label">↳ Temp. to be recovered</span><span class="month-stat-value amber">$991</span></div>
+          <div class="month-stat"><span class="month-stat-label">↳ Confirmed loss</span><span class="month-stat-value red">$158</span></div>
         </div>
       </div>
-
       <div class="charts2">
         <div class="card">
           <div class="card-title">Monthly dispute outcomes — case count</div>
           <div class="legend">
-            <span class="leg"><span class="dot" style="background:#3a7a62"></span>Won</span>
-            <span class="leg"><span class="dot" style="background:#6b9dc2"></span>Merchant refund</span>
-            <span class="leg"><span class="dot" style="background:#a87d30"></span>Stopped</span>
-            <span class="leg"><span class="dot" style="background:#8b3535"></span>Lost</span>
-            <span class="leg"><span class="dot" style="background:#c8e2da"></span>In progress</span>
+            <span class="leg"><span class="dot" style="background:#1D9E75"></span>Won</span>
+            <span class="leg"><span class="dot" style="background:#378ADD"></span>Merchant refund</span>
+            <span class="leg"><span class="dot" style="background:#EF9F27"></span>Stopped</span>
+            <span class="leg"><span class="dot" style="background:#E24B4A"></span>Lost</span>
+            <span class="leg"><span class="dot" style="background:#9FE1CB"></span>In progress</span>
           </div>
           <div style="position:relative;width:100%;height:220px;"><canvas id="bar1"></canvas></div>
         </div>
         <div class="card">
-          <div class="card-title">Win / merchant refund / loss rate</div>
+          <div class="card-title">Win / merchant refund / loss rate — monthly</div>
           <div style="position:relative;width:100%;height:220px;"><canvas id="line1"></canvas></div>
         </div>
-      </div>
-
-      <div class="note">
-        <strong>April is the reporting month</strong> — Feb & March shown for trend context. All rates calculated over disputes actually opened, not total tickets.
       </div>
     </div>
 
     <hr class="divider">
 
-    <!-- SECTION 2: Credits & Financial Loss -->
+    <!-- SECTION 2 -->
     <div class="section">
-      <div class="section-label">Section 2 · Temporary credit & financial loss</div>
-      
+      <div class="section-label">Section 2 · Temporary credit &amp; financial loss</div>
+      <div style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px">April · reporting month snapshot</div>
       <div class="metrics4">
-        <div class="metric">
-          <div class="metric-label">Credits issued</div>
+        <div class="metric highlight">
+          <div class="metric-label"><span class="tooltip-wrap">Credits issued<span class="tooltip-box">Temporary credits given to the client while the dispute is under investigation. These are reversed if the dispute is lost, or become permanent if won.</span></span></div>
           <div class="metric-value blue">108 <span style="font-size:13px;font-weight:400">· 20.8%</span></div>
           <div class="metric-usd blue">$27,831</div>
-          <div class="metric-sub">April</div>
+          <div class="metric-sub">April only</div>
         </div>
-        <div class="metric">
+        <div class="metric highlight">
           <div class="metric-label">Recovered (won)</div>
           <div class="metric-value green">0.0%</div>
           <div class="metric-usd green">$0</div>
-          <div class="metric-sub">April · no wins yet</div>
+          <div class="metric-sub">April only</div>
         </div>
-        <div class="metric">
-          <div class="metric-label">Temp. to be recovered</div>
+        <div class="metric highlight">
+          <div class="metric-label"><span class="tooltip-wrap">Temp. credits to be recovered<span class="tooltip-box">Credits issued on disputes still in progress (Evidence Submitted / 2nd Presentment). These may still be recovered once the network responds.</span></span></div>
           <div class="metric-value amber">99.4%</div>
           <div class="metric-usd amber">$27,654</div>
-          <div class="metric-sub">outcome pending</div>
+          <div class="metric-sub">April · outcome pending</div>
         </div>
-        <div class="metric">
-          <div class="metric-label">Confirmed financial loss</div>
-          <div class="metric-value red">11.1% · 12</div>
+        <div class="metric highlight">
+          <div class="metric-label"><span class="tooltip-wrap">Confirmed financial loss<span class="tooltip-box">Credits issued on cases with a final non-winning status: not eligible, below $15, stopped, lost, or merchant refunded. These are confirmed losses to Jeeves.</span></span></div>
+          <div class="metric-value red">11.1% <span style="font-size:13px;font-weight:400">· 12</span></div>
           <div class="metric-usd red">$176</div>
-          <div class="metric-sub">April losses</div>
+          <div style="margin-top:8px;border-top:0.5px solid #e0dfd8;padding-top:8px;font-size:11px;line-height:1.8;color:#5f5e5a">
+            <div>Not eligible: <strong>11</strong> · $172</div>
+            <div>Merchant refund: <strong>1</strong> · $4</div>
+          </div>
         </div>
       </div>
-
+      <div style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px;margin-top:6px">Feb, March &amp; April — month-by-month comparison</div>
       <div class="charts2">
         <div class="card">
           <div class="card-title">Monthly — credit destination (USD)</div>
           <div class="legend">
-            <span class="leg"><span class="dot" style="background:#3a7a62"></span>Recovered</span>
-            <span class="leg"><span class="dot" style="background:#c8e2da"></span>Temp. to recover</span>
-            <span class="leg"><span class="dot" style="background:#8b3535"></span>Financial loss</span>
+            <span class="leg"><span class="dot" style="background:#1D9E75"></span>Recovered</span>
+            <span class="leg"><span class="dot" style="background:#9FE1CB"></span>Temp. to be recovered</span>
+            <span class="leg"><span class="dot" style="background:#E24B4A"></span>Financial loss</span>
           </div>
           <div style="position:relative;width:100%;height:220px;"><canvas id="bar2"></canvas></div>
         </div>
@@ -413,262 +416,476 @@
       </div>
     </div>
 
-    <div class="footer">Disputes Report · April 2026 · Disputes Operations</div>
+    <hr class="divider">
+
+    <!-- SECTION 3 -->
+    <div class="section">
+      <div class="section-label">Section 3 · Dispute reasons</div>
+      <div style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px">April · reporting month — top dispute reasons</div>
+      <div class="charts2eq">
+        <div class="card">
+          <div class="card-title">Dispute reason — April distribution</div>
+          <div style="position:relative;width:100%;height:260px;"><canvas id="donut3"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Dispute reason — April cases &amp; share</div>
+          <table>
+            <thead><tr><th>Reason</th><th>Cases</th><th>% of total</th></tr></thead>
+            <tbody>
+              <tr><td>Transaction not recognised</td><td>374</td><td style="font-weight:700;color:#0c447c">71.9%</td></tr>
+              <tr><td>Duplicate transaction</td><td>53</td><td style="font-weight:700">10.2%</td></tr>
+              <tr><td>Transaction cancelled still charged</td><td>31</td><td style="font-weight:700">6.0%</td></tr>
+              <tr><td>Service not as described</td><td>21</td><td style="font-weight:700">4.0%</td></tr>
+              <tr><td>Other</td><td>18</td><td style="font-weight:700">3.5%</td></tr>
+              <tr><td>Goods not received</td><td>15</td><td style="font-weight:700">2.9%</td></tr>
+              <tr><td>Transaction not authorised</td><td>8</td><td style="font-weight:700">1.5%</td></tr>
+              <tr class="total-row"><td>Total</td><td>520</td><td>100%</td></tr>
+            </tbody>
+          </table>
+          <div class="note" style="margin-top:12px"><strong>Transaction not recognised</strong> is consistently the dominant reason (~80% of cases), indicating fraud or forgotten transactions. <strong>Duplicate</strong> and <strong>Cancelled / still charged</strong> are the most actionable categories to tackle with merchant controls.</div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px;margin-top:6px">Feb, March &amp; April — dispute reasons comparison</div>
+      <div class="card">
+        <div class="card-title">Top dispute reasons — month-by-month</div>
+        <div class="legend">
+          <span class="leg"><span class="dot" style="background:rgba(136,135,128,0.4)"></span>Feb</span>
+          <span class="leg"><span class="dot" style="background:rgba(136,135,128,0.7)"></span>March</span>
+          <span class="leg"><span class="dot" style="background:#0c447c"></span>April</span>
+        </div>
+        <div style="position:relative;width:100%;height:280px;"><canvas id="bar_reason_compare"></canvas></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SECTION 4 -->
+    <div class="section">
+      <div class="section-label">Section 4 · Card type, processor &amp; 3DS authentication</div>
+      <div style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px">April · reporting month data — Feb &amp; March for reference in charts below</div>
+      <div class="charts3">
+        <div class="card">
+          <div class="card-title">Card type — April</div>
+          <table><thead><tr><th>Type</th><th>Cases</th><th>%</th></tr></thead>
+          <tbody><tr><td>Virtual</td><td>274</td><td style="font-weight:700">52.7%</td></tr><tr><td>Physical</td><td>246</td><td style="font-weight:700">47.3%</td></tr><tr class="total-row"><td>Total</td><td>520</td><td>100%</td></tr></tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-title">Processor — April</div>
+          <table><thead><tr><th>Processor</th><th>Cases</th><th>%</th></tr></thead>
+          <tbody><tr><td>Tutuka</td><td>296</td><td style="font-weight:700">56.9%</td></tr><tr><td>Tutuka Brazil</td><td>156</td><td style="font-weight:700">30.0%</td></tr><tr><td>Tutuka Colombia</td><td>53</td><td style="font-weight:700">10.2%</td></tr><tr><td>Stripe UK</td><td>8</td><td style="font-weight:700">1.5%</td></tr><tr><td>Stripe US</td><td>6</td><td style="font-weight:700">1.2%</td></tr><tr><td>Stripe EUR</td><td>1</td><td style="font-weight:700">0.2%</td></tr><tr class="total-row"><td>Total</td><td>520</td><td>100%</td></tr></tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="tooltip-wrap">3DS authentication<span class="tooltip-box">3D Secure is an extra authentication layer that shifts fraud liability from the issuer to the merchant. Authenticated transactions are extremely difficult to dispute.</span></span></div>
+          <table><thead><tr><th>Status</th><th>Cases</th><th>%</th></tr></thead>
+          <tbody><tr><td>No signal</td><td>461</td><td style="font-weight:700">88.7%</td></tr><tr><td>MDES</td><td>46</td><td style="font-weight:700">8.8%</td></tr><tr><td>3DS</td><td>13</td><td style="font-weight:700">2.5%</td></tr><tr class="total-row"><td>Total</td><td>520</td><td>100%</td></tr></tbody></table>
+          <div class="note" style="margin-top:10px">Transactions without 3DS signal represent the highest fraud risk. Fully authenticated transactions are almost always non-disputable.</div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px;margin-top:6px">Feb, March &amp; April — month-by-month comparison</div>
+      <div class="charts3">
+        <div class="card">
+          <div class="card-title">Card type — Feb vs March vs April</div>
+          <div style="position:relative;width:100%;height:200px;"><canvas id="bar_ct"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Processor — Feb vs March vs April</div>
+          <div style="position:relative;width:100%;height:200px;"><canvas id="bar_proc"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">3DS status — Feb vs March vs April</div>
+          <div style="position:relative;width:100%;height:200px;"><canvas id="bar_tds"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SECTION 5 -->
+    <div class="section">
+      <div class="section-label">Section 5 · Top merchant categories (MCC)</div>
+      <div style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px">April · reporting month — top MCCs by dispute volume</div>
+      <div class="charts2">
+        <div class="card">
+          <div class="card-title">Top MCCs — April</div>
+          <div style="position:relative;width:100%;height:300px;"><canvas id="bar5"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="tooltip-wrap">MCC breakdown — April<span class="tooltip-box">MCC = Merchant Category Code. A 4-digit code assigned by card networks to classify the type of business. Used to identify dispute patterns by merchant type.</span></span></div>
+          <table><thead><tr><th>MCC</th><th>Category</th><th>Cases</th><th>%</th></tr></thead>
+          <tbody>
+            <tr><td>4121</td><td class="left">Taxicabs &amp; Rideshare</td><td>92</td><td style="font-weight:700">17.7%</td></tr>
+            <tr><td>5734</td><td class="left">Computer Software Stores</td><td>41</td><td style="font-weight:700">7.9%</td></tr>
+            <tr><td>4814</td><td class="left">Telecom Services</td><td>36</td><td style="font-weight:700">6.9%</td></tr>
+            <tr><td>5814</td><td class="left">Fast Food</td><td>35</td><td style="font-weight:700">6.7%</td></tr>
+            <tr><td>5399</td><td class="left">General Merchandise</td><td>23</td><td style="font-weight:700">4.4%</td></tr>
+            <tr><td>5818</td><td class="left">Digital Goods – Multi-Category</td><td>17</td><td style="font-weight:700">3.3%</td></tr>
+            <tr><td>4816</td><td class="left">Computer Network/Info Services</td><td>15</td><td style="font-weight:700">2.9%</td></tr>
+            <tr><td>4511</td><td class="left">Airlines</td><td>15</td><td style="font-weight:700">2.9%</td></tr>
+            <tr><td>4900</td><td class="left">Utilities</td><td>15</td><td style="font-weight:700">2.9%</td></tr>
+            <tr><td>5812</td><td class="left">Restaurants</td><td>14</td><td style="font-weight:700">2.7%</td></tr>
+            <tr class="total-row"><td colspan="2">Total</td><td>520</td><td>100%</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px;margin-top:6px">Feb, March &amp; April — top MCC comparison</div>
+      <div class="card">
+        <div class="card-title">Top MCCs — month-by-month</div>
+        <div class="legend">
+          <span class="leg"><span class="dot" style="background:rgba(136,135,128,0.5)"></span>Feb</span>
+          <span class="leg"><span class="dot" style="background:rgba(136,135,128,0.8)"></span>March</span>
+          <span class="leg"><span class="dot" style="background:#0c447c"></span>April</span>
+        </div>
+        <div style="position:relative;width:100%;height:340px;"><canvas id="bar_mcc_compare"></canvas></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SECTION 6 -->
+    <div class="section">
+      <div class="section-label">Section 6 · Chargeback basis points (BPS) — Tutuka processors</div>
+      <div class="metrics4">
+        <div class="metric highlight">
+          <div class="metric-label">BPS — April (reporting month)</div>
+          <div class="metric-value green">0.28 bps</div>
+          <div class="metric-sub">Tutuka processors only</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">BPS — March</div>
+          <div class="metric-value green">2.47 bps</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">BPS — Feb</div>
+          <div class="metric-value amber">4.51 bps</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label"><span class="tooltip-wrap">3-month avg BPS<span class="tooltip-box">Basis Points = (total disputed amount ÷ total transaction volume) × 10,000. Measures the share of volume that is disputed. Below 5 bps is healthy; above 8 bps may trigger processor review.</span></span></div>
+          <div class="metric-value green">2.26 bps</div>
+          <div class="metric-sub">Feb–April average</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Monthly BPS — chargeback basis points</div>
+        <div style="position:relative;width:100%;height:200px;"><canvas id="bpsLine"></canvas></div>
+      </div>
+      <div class="note"><strong>BPS = (won + lost amounts / total transaction volume) × 10,000.</strong> Merchant refunds are excluded from the disputed amount as they are resolved outside the network. Volume data covers Tutuka, Tutuka Brazil, and Tutuka Colombia only. A BPS below 5 is generally healthy; above 8 bps may trigger processor monitoring programs.</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SECTION 7 -->
+    <div class="section">
+      <div class="section-label">Section 7 · How a dispute works — lifecycle &amp; timelines</div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Dispute lifecycle — from ticket to resolution</div>
+        <div class="lifecycle" style="margin-top:8px">
+          <div class="lifecycle-step">
+            <div class="lifecycle-dot" style="background:#f1efe8;border:2px solid #b4b2a9;">🎫</div>
+            <div class="lifecycle-label">Ticket opened</div>
+            <div class="lifecycle-sub">Client reports unrecognised or disputed transaction</div>
+            <div class="lifecycle-time">Day 0</div>
+          </div>
+          <div class="lifecycle-step">
+            <div class="lifecycle-dot" style="background:#e6f1fb;border:2px solid #378ADD;">🔍</div>
+            <div class="lifecycle-label">Review</div>
+            <div class="lifecycle-sub">Eligibility checked · credit may be issued</div>
+            <div class="lifecycle-time">Day 1–3</div>
+          </div>
+          <div class="lifecycle-step">
+            <div class="lifecycle-dot" style="background:#e6f1fb;border:2px solid #0c447c;">📋</div>
+            <div class="lifecycle-label">Filed (1st)</div>
+            <div class="lifecycle-sub">Chargeback filed with card network (Visa/MC)</div>
+            <div class="lifecycle-time">Day 3–10</div>
+          </div>
+          <div class="lifecycle-step">
+            <div class="lifecycle-dot" style="background:#fef6e4;border:2px solid #EF9F27;">📄</div>
+            <div class="lifecycle-label">Evidence</div>
+            <div class="lifecycle-sub">Merchant responds with evidence to rebut the claim</div>
+            <div class="lifecycle-time">Up to 45 days</div>
+          </div>
+          <div class="lifecycle-step">
+            <div class="lifecycle-dot" style="background:#fef6e4;border:2px solid #EF9F27;">🔄</div>
+            <div class="lifecycle-label">2nd Presentment</div>
+            <div class="lifecycle-sub">We re-submit dispute after reviewing merchant evidence</div>
+            <div class="lifecycle-time">+30 days</div>
+          </div>
+          <div class="lifecycle-step">
+            <div class="lifecycle-dot" style="background:#e8f7f2;border:2px solid #1D9E75;">✅</div>
+            <div class="lifecycle-label">Won</div>
+            <div class="lifecycle-sub">Network rules in our favour · funds recovered</div>
+            <div class="lifecycle-time">45–120 days</div>
+          </div>
+          <div class="lifecycle-step">
+            <div class="lifecycle-dot" style="background:#fdf0f0;border:2px solid #E24B4A;">✗</div>
+            <div class="lifecycle-label">Lost</div>
+            <div class="lifecycle-sub">Network rules for merchant · credit becomes permanent loss</div>
+            <div class="lifecycle-time">45–120 days</div>
+          </div>
+        </div>
+        <div class="note" style="margin-top:8px">A dispute can take <strong>45 to 120 days</strong> from filing to final resolution. Cases showing as <strong>In Progress</strong> are currently at the Evidence Submitted or 2nd Presentment stage and are still within the normal resolution window. <strong>Pre-Arbitration</strong> is a further escalation stage that can add another 30–45 days.</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SECTION 8 -->
+    <div class="section">
+      <div class="section-label">Section 8 · Glossary</div>
+      <div class="card">
+        <div class="card-title">Key terms explained</div>
+        <div class="glossary-grid" style="margin-top:8px">
+          <div class="glossary-item"><div class="glossary-term">Chargeback</div><div class="glossary-def">A forced reversal of a card transaction initiated by the card network on behalf of the cardholder. The merchant is debited and the issuer (Jeeves) recovers funds.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Win Rate</div><div class="glossary-def">Percentage of filed disputes where the card network ruled in our favour. Calculated over opened disputes only — not over all tickets.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Temporary Credit</div><div class="glossary-def">A provisional credit given to the client while the dispute is pending. Reversed if the dispute is lost; becomes permanent if won.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Financial Loss</div><div class="glossary-def">A credit issued on a case that ended in a non-winning status (lost, not eligible, stopped, below $15). Confirmed cost to Jeeves.</div></div>
+          <div class="glossary-item"><div class="glossary-term">BPS (Basis Points)</div><div class="glossary-def">Disputed amount as a fraction of total transaction volume, × 10,000. E.g., 5 bps = 0.05% of volume disputed. Processors monitor this metric.</div></div>
+          <div class="glossary-item"><div class="glossary-term">2nd Presentment</div><div class="glossary-def">A second round of the dispute filed after reviewing the merchant's evidence rebuttal. Last chance before Pre-Arbitration.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Pre-Arbitration</div><div class="glossary-def">An escalation stage where the card network acts as arbitrator. Higher fees apply. Used when both parties maintain their position after 2nd presentment.</div></div>
+          <div class="glossary-item"><div class="glossary-term">3DS (3D Secure)</div><div class="glossary-def">Authentication protocol (Verified by Visa / Mastercard SecureCode). If authenticated, fraud liability shifts to the merchant — making chargebacks very hard to file.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Not Eligible</div><div class="glossary-def">Transaction cannot be disputed via the card network — often because it exceeded the 120-day dispute window or falls under a non-disputable transaction type.</div></div>
+          <div class="glossary-item"><div class="glossary-term">MCC (Merchant Category Code)</div><div class="glossary-def">4-digit code assigned by card networks to classify merchant type. E.g., 4121 = Taxicabs/Rideshare, 7372 = Software/SaaS. Used to spot dispute concentration by industry.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Stopped</div><div class="glossary-def">Dispute was intentionally not continued after reviewing merchant evidence — typically when the evidence was compelling enough to justify stopping the process.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Refunded by Merchant</div><div class="glossary-def">Merchant returned funds voluntarily (without a network ruling). Faster than a chargeback win and avoids dispute fees. Counted as a recovery.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">Disputes Report · April 2026 · Monthly Report · Disputes Operations</div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     JAVASCRIPT — RUNS AFTER GOOGLE SDK IS LOADED
-     ═══════════════════════════════════════════════════════════ -->
 <script>
-  // ────────────────────────────────────────────────────────────
-  // OAUTH Configuration
-  // ────────────────────────────────────────────────────────────
   const CLIENT_ID = '656061869373-86k86bjffu87bu6pfbiqipf7t6ekv858.apps.googleusercontent.com';
   const ALLOWED_DOMAIN = '@tryjeeves.com';
+  const AUTH_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+  const AUTH_KEY = 'jeeves_disputes_auth';
+
+  function saveAuth(token, email) {
+    const payload = { token: token, email: email, expiresAt: Date.now() + AUTH_TTL_MS };
+    try { localStorage.setItem(AUTH_KEY, JSON.stringify(payload)); } catch(e) {}
+  }
+
+  function readAuth() {
+    try {
+      const raw = localStorage.getItem(AUTH_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!data || !data.email || !data.expiresAt) return null;
+      if (Date.now() > data.expiresAt) { localStorage.removeItem(AUTH_KEY); return null; }
+      if (!data.email.endsWith(ALLOWED_DOMAIN)) { localStorage.removeItem(AUTH_KEY); return null; }
+      return data;
+    } catch(e) { return null; }
+  }
+
+  function clearAuth() { try { localStorage.removeItem(AUTH_KEY); } catch(e) {} }
 
   function handleCredentialResponse(response) {
     const token = response.credential;
-    if (!token) {
-      showError('Unable to decode token. Please try again.');
-      return;
-    }
-
+    if (!token) { showError('Unable to decode token. Please try again.'); return; }
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
       const decoded = JSON.parse(jsonPayload);
-
       const email = decoded.email;
-      if (!email || !email.endsWith(ALLOWED_DOMAIN)) {
-        showError(`Access denied. Only ${ALLOWED_DOMAIN} accounts are allowed.`);
-        return;
-      }
-
-      sessionStorage.setItem('authToken', token);
-      sessionStorage.setItem('userEmail', email);
+      if (!email || !email.endsWith(ALLOWED_DOMAIN)) { showError('Access denied. Only ' + ALLOWED_DOMAIN + ' accounts are allowed.'); return; }
+      saveAuth(token, email);
       showReport();
-    } catch (err) {
-      showError('Invalid token format. Please try again.');
-    }
+    } catch(err) { showError('Invalid token format. Please try again.'); }
   }
 
   function checkExistingAuth() {
-    const authToken = sessionStorage.getItem('authToken');
-    const userEmail = sessionStorage.getItem('userEmail');
-
-    if (authToken && userEmail && userEmail.endsWith(ALLOWED_DOMAIN)) {
-      showReport();
-    } else {
-      showLogin();
-    }
+    const auth = readAuth();
+    if (auth) { showReport(); } else { showLogin(); }
   }
 
   function initGoogleSignIn() {
-    // Wait for Google library to load
-    if (typeof google === 'undefined' || !google.accounts) {
-      console.warn('Google library not ready, retrying...');
-      setTimeout(initGoogleSignIn, 500);
-      return;
-    }
-
-    google.accounts.id.initialize({
-      client_id: CLIENT_ID,
-      callback: handleCredentialResponse,
-      ux_mode: 'popup'
-    });
-
+    if (typeof google === 'undefined' || !google.accounts) { setTimeout(initGoogleSignIn, 500); return; }
+    google.accounts.id.initialize({ client_id: CLIENT_ID, callback: handleCredentialResponse, ux_mode: 'popup' });
     const renderContainer = document.getElementById('g_id_render');
-    if (renderContainer) {
-      google.accounts.id.renderButton(renderContainer, { 
-        theme: 'outline', 
-        size: 'large',
-        text: 'signin_with'
-      });
-    }
+    if (renderContainer) { google.accounts.id.renderButton(renderContainer, { theme: 'outline', size: 'large', text: 'signin_with' }); }
   }
 
-  function showLogin() {
-    document.body.classList.remove('report-mode');
-    document.body.classList.add('login-mode');
-  }
-
+  function showLogin() { document.body.classList.remove('report-mode'); document.body.classList.add('login-mode'); }
   function showReport() {
     document.body.classList.remove('login-mode');
     document.body.classList.add('report-mode');
     setTimeout(initCharts, 100);
+    loadReportsList();
   }
-
-  function showError(msg) {
-    const errorDiv = document.getElementById('login-error');
-    errorDiv.textContent = msg;
-    errorDiv.classList.add('show');
-  }
-
+  function showError(msg) { const e = document.getElementById('login-error'); e.textContent = msg; e.classList.add('show'); }
   function logout() {
-    sessionStorage.removeItem('authToken');
-    sessionStorage.removeItem('userEmail');
-    if (window.google && window.google.accounts) {
-      google.accounts.id.disableAutoSelect();
-    }
+    clearAuth();
+    if (window.google && window.google.accounts) { google.accounts.id.disableAutoSelect(); }
     showLogin();
   }
 
-  // ────────────────────────────────────────────────────────────
-  // Charts initialization
-  // ────────────────────────────────────────────────────────────
-  function initCharts() {
-    const months = ['Feb', 'March', 'April'];
-    const D = [
-      { won: 40, ref: 7, stop: 1, lost: 1, prog: 32, wonCusd: 25941, progCusd: 991, finLusd: 158 },
-      { won: 41, ref: 25, stop: 2, lost: 0, prog: 145, wonCusd: 23917, progCusd: 26606, finLusd: 478 },
-      { won: 0, ref: 47, stop: 2, lost: 0, prog: 125, wonCusd: 0, progCusd: 27654, finLusd: 176 }
-    ];
-
-    const OPTS = { responsive: true, maintainAspectRatio: false };
-    const gridY = { color: 'rgba(0,0,0,0.05)' };
-    const tickSm = { font: { size: 10 } };
-
-    // Bar 1 — Dispute outcomes
-    const bar1El = document.getElementById('bar1');
-    if (bar1El) {
-      new Chart(bar1El, {
-        type: 'bar',
-        data: {
-          labels: months,
-          datasets: [
-            { label: 'Won', data: D.map(d => d.won), backgroundColor: '#3a7a62', stack: 's' },
-            { label: 'Merchant refund', data: D.map(d => d.ref), backgroundColor: '#6b9dc2', stack: 's' },
-            { label: 'Stopped', data: D.map(d => d.stop), backgroundColor: '#a87d30', stack: 's' },
-            { label: 'Lost', data: D.map(d => d.lost), backgroundColor: '#8b3535', stack: 's' },
-            { label: 'In progress', data: D.map(d => d.prog), backgroundColor: '#c8e2da', stack: 's' }
-          ]
-        },
-        options: {
-          ...OPTS,
-          plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-          scales: {
-            x: { stacked: true, ticks: { ...tickSm, autoSkip: false }, grid: { display: false } },
-            y: { stacked: true, ticks: tickSm, grid: gridY }
-          }
-        }
-      });
-    }
-
-    // Line 1 — Rates trend
-    const line1El = document.getElementById('line1');
-    if (line1El) {
-      new Chart(line1El, {
-        type: 'line',
-        data: {
-          labels: months,
-          datasets: [
-            {
-              label: 'Win rate',
-              data: [49.4, 19.2, 0],
-              borderColor: '#3a7a62',
-              backgroundColor: 'rgba(58,122,98,0.08)',
-              tension: 0.3,
-              pointRadius: 4,
-              fill: true
-            },
-            {
-              label: 'Merchant refund rate',
-              data: [8.6, 11.7, 27.0],
-              borderColor: '#6b9dc2',
-              tension: 0.3,
-              pointRadius: 4
-            },
-            {
-              label: 'Loss rate',
-              data: [1.2, 0, 0],
-              borderColor: '#8b3535',
-              tension: 0.3,
-              pointRadius: 4
-            }
-          ]
-        },
-        options: {
-          ...OPTS,
-          plugins: {
-            legend: { display: true, position: 'bottom', labels: { font: { size: 10 }, padding: 8 } }
-          },
-          scales: {
-            x: { ticks: { ...tickSm, autoSkip: false }, grid: { display: false } },
-            y: { ticks: { ...tickSm, callback: v => v + '%' }, grid: gridY, min: 0, max: 100 }
-          }
-        }
-      });
-    }
-
-    // Bar 2 — Credit destination
-    const bar2El = document.getElementById('bar2');
-    if (bar2El) {
-      new Chart(bar2El, {
-        type: 'bar',
-        data: {
-          labels: months,
-          datasets: [
-            { label: 'Recovered', data: D.map(d => d.wonCusd), backgroundColor: '#3a7a62', stack: 's' },
-            { label: 'Temp. to recover', data: D.map(d => d.progCusd), backgroundColor: '#c8e2da', stack: 's' },
-            { label: 'Financial loss', data: D.map(d => d.finLusd), backgroundColor: '#8b3535', stack: 's' }
-          ]
-        },
-        options: {
-          ...OPTS,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              mode: 'index',
-              intersect: false,
-              callbacks: { label: ctx => ' ' + ctx.dataset.label + ': $' + ctx.raw.toLocaleString() }
-            }
-          },
-          scales: {
-            x: { stacked: true, ticks: { ...tickSm, autoSkip: false }, grid: { display: false } },
-            y: { stacked: true, ticks: { ...tickSm, callback: v => '$' + (v / 1000).toFixed(0) + 'k' }, grid: gridY }
-          }
-        }
-      });
-    }
-
-    // Line 2 — Loss rate %
-    const line2El = document.getElementById('line2');
-    if (line2El) {
-      new Chart(line2El, {
-        type: 'line',
-        data: {
-          labels: months,
-          datasets: [
-            {
-              label: 'Loss rate %',
-              data: [9.4, 3.8, 11.1],
-              borderColor: '#8b3535',
-              backgroundColor: 'rgba(139,53,53,0.08)',
-              tension: 0.3,
-              pointRadius: 4,
-              fill: true
-            }
-          ]
-        },
-        options: {
-          ...OPTS,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { ticks: { ...tickSm, autoSkip: false }, grid: { display: false } },
-            y: { ticks: { ...tickSm, callback: v => v + '%' }, grid: gridY, min: 0 }
-          }
-        }
-      });
-    }
+  // ─── Reports dropdown ───────────────────────────────────────
+  function toggleReportsMenu() {
+    const btn = document.getElementById('reports-btn');
+    const menu = document.getElementById('reports-menu');
+    const isOpen = menu.classList.contains('open');
+    if (isOpen) { menu.classList.remove('open'); btn.classList.remove('open'); }
+    else { menu.classList.add('open'); btn.classList.add('open'); }
   }
 
-  // ────────────────────────────────────────────────────────────
-  // Init on page load
-  // ────────────────────────────────────────────────────────────
+  // close on outside click
+  document.addEventListener('click', function(e) {
+    const nav = document.querySelector('.reports-nav');
+    if (nav && !nav.contains(e.target)) {
+      document.getElementById('reports-menu').classList.remove('open');
+      document.getElementById('reports-btn').classList.remove('open');
+    }
+  });
+
+  function loadReportsList() {
+    const listEl = document.getElementById('reports-list');
+    if (!listEl) return;
+    if (listEl.dataset.loaded === '1') return; // only fetch once per session
+
+    fetch('https://api.github.com/repos/fernandah-creator/disputes-report/contents/reports')
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(items => {
+        const reports = (items || [])
+          .filter(it => it.type === 'file' && /\.html?$/i.test(it.name))
+          .map(it => {
+            const base = it.name.replace(/\.html?$/i, '');
+            return { name: it.name, label: formatReportLabel(base), url: '/disputes-report/reports/' + it.name, sortKey: base };
+          })
+          .sort((a, b) => b.sortKey.localeCompare(a.sortKey)); // newest first
+
+        if (reports.length === 0) {
+          listEl.innerHTML = '<div class="empty">No archived reports yet</div>';
+        } else {
+          // current = index.html (April 2026)
+          const currentLink = '<a href="/disputes-report/" class="current">April 2026 <span class="badge">CURRENT</span></a>';
+          const others = reports.map(r => '<a href="' + r.url + '">' + r.label + '</a>').join('');
+          listEl.innerHTML = currentLink + others;
+        }
+        listEl.dataset.loaded = '1';
+      })
+      .catch(err => {
+        console.error('Failed to load reports list:', err);
+        listEl.innerHTML = '<div class="empty">Could not load reports list</div>';
+      });
+  }
+
+  function formatReportLabel(base) {
+    // expects "YYYY-MM" — e.g. "2026-03" → "March 2026"
+    const m = base.match(/^(\d{4})-(\d{1,2})$/);
+    if (!m) return base;
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const monthIdx = parseInt(m[2], 10) - 1;
+    if (monthIdx < 0 || monthIdx > 11) return base;
+    return monthNames[monthIdx] + ' ' + m[1];
+  }
+
+  function initCharts() {
+    const months = ['Feb','March','April'];
+    const D = [
+      {won:40,wonUSD:34839.72,prog:32,lost:1,lostUSD:87.76,ref:7,refUSD:376.58,stop:1,cred:53,credUSD:27090.93,wonCusd:25941.36,progCusd:991.11,finL:5,finLusd:158.47},
+      {won:41,wonUSD:23916.95,prog:145,lost:0,lostUSD:0,ref:25,refUSD:1729.08,stop:2,cred:184,credUSD:51000.58,wonCusd:23916.95,progCusd:26605.70,finL:7,finLusd:477.92},
+      {won:0,wonUSD:0,prog:125,lost:0,lostUSD:0,ref:47,refUSD:2746.50,stop:2,cred:108,credUSD:27830.62,wonCusd:0,progCusd:27654.44,finL:12,finLusd:176.17}
+    ];
+    const OPTS = {responsive:true,maintainAspectRatio:false};
+    const gridY = {color:'rgba(0,0,0,0.05)'};
+    const tickSm = {font:{size:10}};
+    const fmt = n => '$' + Math.round(n).toLocaleString('en-US');
+
+    new Chart(document.getElementById('bar1'),{type:'bar',data:{labels:months,datasets:[
+      {label:'Won',data:D.map(d=>d.won),backgroundColor:'#1D9E75',stack:'s'},
+      {label:'Merchant refund',data:D.map(d=>d.ref),backgroundColor:'#378ADD',stack:'s'},
+      {label:'Stopped',data:D.map(d=>d.stop),backgroundColor:'#EF9F27',stack:'s'},
+      {label:'Lost',data:D.map(d=>d.lost),backgroundColor:'#E24B4A',stack:'s'},
+      {label:'In progress',data:D.map(d=>d.prog),backgroundColor:'#9FE1CB',stack:'s'},
+    ]},options:{...OPTS,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{stacked:true,ticks:{...tickSm,autoSkip:false},grid:{display:false}},y:{stacked:true,ticks:tickSm,grid:gridY}}}});
+
+    new Chart(document.getElementById('line1'),{type:'line',data:{labels:months,datasets:[
+      {label:'Win rate',data:D.map(d=>{const o=d.won+d.prog+d.lost+d.ref+d.stop;return o>0?+(d.won/o*100).toFixed(1):null;}),borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,0.08)',tension:0.3,pointRadius:4,fill:true},
+      {label:'Merchant refund rate',data:D.map(d=>{const o=d.won+d.prog+d.lost+d.ref+d.stop;return o>0?+(d.ref/o*100).toFixed(1):null;}),borderColor:'#378ADD',tension:0.3,pointRadius:4},
+      {label:'Loss rate',data:D.map(d=>{const o=d.won+d.prog+d.lost+d.ref+d.stop;return o>0?+(d.lost/o*100).toFixed(1):null;}),borderColor:'#E24B4A',tension:0.3,pointRadius:4},
+    ]},options:{...OPTS,plugins:{legend:{display:true,position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10,boxHeight:2}}},
+      scales:{x:{ticks:{...tickSm,autoSkip:false},grid:{display:false}},y:{ticks:{...tickSm,callback:v=>v+'%'},grid:gridY,min:0,max:100}}}});
+
+    new Chart(document.getElementById('bar2'),{type:'bar',data:{labels:months,datasets:[
+      {label:'Recovered',data:D.map(d=>d.wonCusd),backgroundColor:'#1D9E75',stack:'s'},
+      {label:'Temp. to be recovered',data:D.map(d=>d.progCusd),backgroundColor:'#9FE1CB',stack:'s'},
+      {label:'Financial loss',data:D.map(d=>d.finLusd),backgroundColor:'#E24B4A',stack:'s'},
+    ]},options:{...OPTS,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.raw)}}},
+      scales:{x:{stacked:true,ticks:{...tickSm,autoSkip:false},grid:{display:false}},y:{stacked:true,ticks:{...tickSm,callback:v=>'$'+Math.round(v/1000)+'k'},grid:gridY}}}});
+
+    new Chart(document.getElementById('line2'),{type:'line',data:{labels:months,datasets:[
+      {label:'Loss rate %',data:D.map(d=>d.cred>0?+(d.finL/d.cred*100).toFixed(1):null),borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,0.08)',tension:0.3,pointRadius:4,fill:true},
+    ]},options:{...OPTS,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{...tickSm,autoSkip:false},grid:{display:false}},y:{ticks:{...tickSm,callback:v=>v+'%'},grid:gridY,min:0}}}});
+
+    const reasonLabels = ['Transaction not recognised','Duplicate transaction','Cancelled still charged','Service not as described','Other','Goods not received','Not authorised'];
+    const reasonData   = [374,53,31,21,18,15,8];
+    new Chart(document.getElementById('donut3'),{type:'doughnut',data:{
+      labels:reasonLabels,
+      datasets:[{data:reasonData,backgroundColor:['#0c447c','#378ADD','#85B7EB','#EF9F27','#B4B2A9','#1D9E75','#9FE1CB'],borderWidth:2,borderColor:'#fff'}]
+    },options:{...OPTS,cutout:'58%',plugins:{legend:{display:true,position:'bottom',labels:{font:{size:10},padding:6,boxWidth:10,boxHeight:10}},tooltip:{callbacks:{label:ctx=>ctx.raw+' cases'}}}}});
+
+    const mccLabels = ['4121 Taxicabs/Rideshare','5734 Computer Software','4814 Telecom Services','5814 Fast Food','5399 General Merchandise','5818 Digital Goods','4816 Computer Network','4511 Airlines','4900 Utilities','5812 Restaurants'];
+    const mccData   = [92,41,36,35,23,17,15,15,15,14];
+    new Chart(document.getElementById('bar5'),{type:'bar',data:{
+      labels:mccLabels,
+      datasets:[{data:mccData,backgroundColor:mccData.map((_,i)=>i===0?'#0c447c':i===1?'#185FA5':'#378ADD'),borderRadius:3}]
+    },options:{...OPTS,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' cases'}}},
+      scales:{x:{ticks:tickSm,grid:gridY},y:{ticks:{font:{size:9.5}},grid:{display:false}}}}});
+
+    const reasonChartLabels = ['Not recognised','Duplicate','Cancelled/charged','Not as described','Other','Goods not received','Not authorised'];
+    const reasonChartM1 = [186,9,9,4,5,7,9];
+    const reasonChartM2 = [373,65,16,1,21,9,33];
+    const reasonChartM3 = [374,53,31,21,18,15,8];
+    new Chart(document.getElementById('bar_reason_compare'),{type:'bar',data:{labels:reasonChartLabels,datasets:[
+      {label:'Feb',data:reasonChartM1,backgroundColor:'rgba(120,118,110,0.32)',borderRadius:3},
+      {label:'March',data:reasonChartM2,backgroundColor:'rgba(120,118,110,0.58)',borderRadius:3},
+      {label:'April',data:reasonChartM3,backgroundColor:'#1a3d6b',borderRadius:3},
+    ]},options:{...OPTS,indexAxis:'y',plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{ticks:tickSm,grid:gridY},y:{ticks:{font:{size:9.5},autoSkip:false},grid:{display:false}}}}});
+
+    function makeGroupedBar(canvasId, labels, datasetLabels, datasets) {
+      new Chart(document.getElementById(canvasId),{type:'bar',data:{labels,datasets:datasets.map((d,i)=>({
+        label:datasetLabels[i],data:d,backgroundColor:['rgba(12,68,124,0.75)','rgba(136,135,128,0.5)','rgba(26,61,107,1)'][i],borderRadius:3
+      }))},options:{...OPTS,plugins:{legend:{display:true,position:'bottom',labels:{font:{size:9},padding:6,boxWidth:10,boxHeight:8}}},
+        scales:{x:{ticks:{font:{size:9}},grid:{display:false}},y:{ticks:tickSm,grid:gridY}}}});
+    }
+    const ctKeys   = ['virtual','physical'];
+    const procKeys = ['tutuka','tutukaBrazil','tutukaColombia','stripeUS','stripeEUR','stripeUK','marqetaCanada'];
+    const tdsKeys  = ['No signal','MDES','3DS','attempt_acknowledged','authenticated'];
+    const ctM1 = {virtual:158,physical:71}; const ctM2 = {virtual:277,physical:241}; const ctM3 = {virtual:274,physical:246};
+    const procM1 = {tutuka:145,tutukaBrazil:39,tutukaColombia:11,stripeUS:28,stripeEUR:2,stripeUK:0,marqetaCanada:4};
+    const procM2 = {tutuka:329,tutukaBrazil:110,tutukaColombia:53,stripeUS:11,stripeEUR:5,stripeUK:9,marqetaCanada:1};
+    const procM3 = {tutuka:296,tutukaBrazil:156,tutukaColombia:53,stripeUS:6,stripeEUR:1,stripeUK:8,marqetaCanada:0};
+    const tdsM1 = {'No signal':174,MDES:46,'3DS':6,attempt_acknowledged:2,authenticated:1};
+    const tdsM2 = {'No signal':474,MDES:21,'3DS':23,attempt_acknowledged:0,authenticated:0};
+    const tdsM3 = {'No signal':461,MDES:46,'3DS':13,attempt_acknowledged:0,authenticated:0};
+    makeGroupedBar('bar_ct',  ctKeys,   ['Feb','March','April'], [ctKeys.map(k=>ctM1[k]||0),ctKeys.map(k=>ctM2[k]||0),ctKeys.map(k=>ctM3[k]||0)]);
+    makeGroupedBar('bar_proc',procKeys, ['Feb','March','April'], [procKeys.map(k=>procM1[k]||0),procKeys.map(k=>procM2[k]||0),procKeys.map(k=>procM3[k]||0)]);
+    makeGroupedBar('bar_tds', tdsKeys,  ['Feb','March','April'], [tdsKeys.map(k=>tdsM1[k]||0),tdsKeys.map(k=>tdsM2[k]||0),tdsKeys.map(k=>tdsM3[k]||0)]);
+
+    const mccChartLabels = ['Taxicabs/Rideshare','Computer Software','Telecom Services','Fast Food','General Merchandise','Digital Goods','Computer Network','Airlines','Utilities','Restaurants'];
+    const mccChartM1 = [27,8,8,13,12,4,11,1,0,48];
+    const mccChartM2 = [96,12,5,16,139,11,10,11,0,56];
+    const mccChartM3 = [92,41,36,35,23,17,15,15,15,14];
+    new Chart(document.getElementById('bar_mcc_compare'),{type:'bar',data:{labels:mccChartLabels,datasets:[
+      {label:'Feb',data:mccChartM1,backgroundColor:'rgba(120,118,110,0.3)',borderRadius:3},
+      {label:'March',data:mccChartM2,backgroundColor:'rgba(120,118,110,0.55)',borderRadius:3},
+      {label:'April',data:mccChartM3,backgroundColor:'#1a3d6b',borderRadius:3},
+    ]},options:{...OPTS,plugins:{legend:{display:true,position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10,boxHeight:8}},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{ticks:{font:{size:9},maxRotation:35,autoSkip:false},grid:{display:false}},y:{ticks:tickSm,grid:gridY}}}});
+
+    const bpsVals = [4.51,2.47,0.28];
+    new Chart(document.getElementById('bpsLine'),{type:'line',data:{labels:months,datasets:[
+      {label:'BPS',data:bpsVals,borderColor:'#1a3d6b',backgroundColor:'rgba(26,61,107,0.08)',
+       pointBackgroundColor:bpsVals.map(v=>v>=7?'#791f1f':v<=4?'#0f6e56':'#EF9F27'),
+       pointRadius:7,tension:0.3,fill:true}
+    ]},options:{...OPTS,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.raw.toFixed(2)+' bps'}}},
+      scales:{x:{ticks:tickSm,grid:{display:false}},y:{ticks:{...tickSm,callback:v=>v+' bps'},grid:gridY,min:0}}}});
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     checkExistingAuth();
     initGoogleSignIn();
